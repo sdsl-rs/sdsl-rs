@@ -1,0 +1,11 @@
+[package]
+name = "examples-sdsl-rs"
+version = "0.1.0"
+authors = ["rndhouse <rndhouse@protonmail.com>"]
+edition = "2018"
+
+[dependencies]
+sdsl-rs = { path = "../sdsl-rs", version = "0.1.0" }
+
+[build-dependencies]
+sdsl-rs = { path = "../sdsl-rs", version = "0.1.0" }
