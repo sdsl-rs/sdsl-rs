@@ -90,6 +90,7 @@ pub fn analyse(code_metadata: &CodeMetadata) -> Result<Vec<specification::Specif
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::meta;
 
     #[test]
     fn test_int_vector_correct_specifications() -> Result<()> {
@@ -97,16 +98,30 @@ mod tests {
             mir: "sdsl::int_vector::IntVector<1_u32>;".to_string(),
         };
         let result = analyse(&code_metadata)?;
+
         let expected = vec![specification::Specification {
-            id: "1020f42262158d1201eb8bb16c03def8".to_string(),
-            replacements: maplit::btreemap! {
-                "WT_INT_ID".to_string() => "_1020f42262158d1201eb8bb16c03def8".to_string(),
-                "WT_INT_TEMPLATE".to_string() => "1".to_string()
-            },
-            template_file_name: std::path::PathBuf::from("int_vector.hpp"),
-            target_file_name: std::path::PathBuf::from(
-                "int_vector_1020f42262158d1201eb8bb16c03def8.hpp",
-            ),
+            id: "4ca7a94e593428ab3e8c2cd3e6b936e3".to_string(),
+            files: vec![
+                meta::common::FileSpecification {
+                    replacements: std::collections::BTreeMap::<String, String>::new(),
+                    template_file_name: std::path::PathBuf::from("int_vector.cpp"),
+                    target_file_name: std::path::PathBuf::from(
+                        "int_vector_4ca7a94e593428ab3e8c2cd3e6b936e3.cpp",
+                    ),
+                    c_file_type: meta::common::CFileType::Cpp,
+                },
+                meta::common::FileSpecification {
+                    replacements: maplit::btreemap! {
+                        "#define WT_INT_ID".to_string() => "#define WT_INT_ID _4ca7a94e593428ab3e8c2cd3e6b936e3".to_string(),
+                        "#define WT_INT_TEMPLATE".to_string() => "#define WT_INT_TEMPLATE 1".to_string(),
+                    },
+                    template_file_name: std::path::PathBuf::from("int_vector.hpp"),
+                    target_file_name: std::path::PathBuf::from(
+                        "int_vector_4ca7a94e593428ab3e8c2cd3e6b936e3.hpp",
+                    ),
+                    c_file_type: meta::common::CFileType::Hpp,
+                },
+            ],
         }];
         assert_eq!(result, expected);
         Ok(())

@@ -9,8 +9,11 @@ impl WtIntMeta {
 }
 
 impl common::Meta for WtIntMeta {
-    fn template_file_name(&self) -> std::path::PathBuf {
-        std::path::PathBuf::from("wt_int.hpp")
+    fn template_file_names(&self) -> common::TemplateFileNames {
+        common::TemplateFileNames {
+            source: std::path::PathBuf::from("wt_int.cpp"),
+            header: std::path::PathBuf::from("wt_int.hpp"),
+        }
     }
 
     fn replacements(

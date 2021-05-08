@@ -2,13 +2,26 @@ use anyhow::Result;
 
 pub mod params;
 
+#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+pub enum CFileType {
+    Cpp,
+    Hpp,
+}
+
+#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+pub struct FileSpecification {
+    pub replacements: std::collections::BTreeMap<String, String>,
+    pub template_file_name: std::path::PathBuf,
+    pub target_file_name: std::path::PathBuf,
+    pub c_file_type: CFileType,
+}
+
 pub trait Meta: Regex + Path + params::Parameters {
-    fn template_file_name(&self) -> std::path::PathBuf;
-    fn replacements(
+    fn file_specifications(
         &self,
-        parameter_values: Option<&Vec<String>>,
+        parameter_values: &Option<&Vec<String>>,
         id: &str,
-    ) -> std::collections::BTreeMap<String, String>;
+    ) -> Result<Vec<FileSpecification>>;
 }
 
 pub trait Path {
