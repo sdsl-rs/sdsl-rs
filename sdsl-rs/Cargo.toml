@@ -22,5 +22,6 @@ regex = "1.4.6"
 
 walkdir = "2.3.2"
 zip = "0.5.10"
+fs_extra = "1.2.0"
 
 cmake = "0.1.45"

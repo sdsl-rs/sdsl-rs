@@ -19,11 +19,17 @@ impl common::Meta for IntVectorMeta {
         id: &str,
     ) -> std::collections::BTreeMap<String, String> {
         let mut replacements = maplit::btreemap! {};
+
         if let Some(parameter_values) = parameter_values {
-            let parameter_values = parameter_values.join(", ");
-            replacements.insert("WT_INT_TEMPLATE".to_string(), parameter_values);
+            let template = format!("#define WT_INT_TEMPLATE {}", parameter_values.join(", "));
+            replacements.insert("#define WT_INT_TEMPLATE".to_string(), template);
         }
-        replacements.insert("WT_INT_ID".to_string(), format!("_{}", id));
+
+        replacements.insert(
+            "#define WT_INT_ID".to_string(),
+            format!("#define WT_INT_ID _{}", id),
+        );
+
         replacements
     }
 }

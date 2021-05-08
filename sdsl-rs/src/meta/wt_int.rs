@@ -15,8 +15,8 @@ impl common::Meta for WtIntMeta {
 
     fn replacements(
         &self,
-        parameter_values: Option<&Vec<String>>,
-        id: &str,
+        _parameter_values: Option<&Vec<String>>,
+        _id: &str,
     ) -> std::collections::BTreeMap<String, String> {
         maplit::btreemap! {}
     }
