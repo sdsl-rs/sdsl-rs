@@ -1,8 +1,8 @@
 use anyhow::{format_err, Result};
 
 mod analyse;
+pub mod sdsl_c;
 mod common;
-mod sdsl_c;
 
 pub fn build() -> Result<()> {
     simple_logger::SimpleLogger::new().init()?;
@@ -25,12 +25,11 @@ pub fn build() -> Result<()> {
     };
 
     let template_directory = sdsl_c::template::setup(&out_directory)?;
-    let _interface_directory =
+    let interface_directory =
         sdsl_c::specification::setup(&specifications, &template_directory, &out_directory)?;
+    let lib_path = sdsl_c::specification::compile(&interface_directory)?;
+    log::info!("Compilation complete. Library path: {}", lib_path.display());
 
-    // let dst = cmake::build("libfoo");
-    // println!("cargo:rustc-link-search=native={}", dst.display());
-    // println!("cargo:rustc-link-lib=static=foo");
     println!("cargo:rerun-if-changed=./src");
     Ok(())
 }

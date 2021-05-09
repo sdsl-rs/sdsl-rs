@@ -41,3 +41,15 @@ impl common::params::Parameters for WtIntMeta {
         ]
     }
 }
+
+struct Interface {
+    get: extern "C" fn(*mut libc::c_void, u64) -> usize,
+}
+
+impl Interface {
+    pub fn new(id: &String, lib: &sharedlib::Lib) -> Result<Self> {
+        Ok(Self {
+            get: sdsl_c::get_function("int_vector_get_element", Some(&id), &lib)?,
+        })
+    }
+}

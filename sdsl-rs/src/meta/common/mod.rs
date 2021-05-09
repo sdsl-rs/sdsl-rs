@@ -1,4 +1,5 @@
 use anyhow::{format_err, Result};
+use sharedlib::Symbol;
 
 pub mod params;
 

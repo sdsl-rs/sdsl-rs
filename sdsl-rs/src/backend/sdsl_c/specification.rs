@@ -40,7 +40,7 @@ impl Specification {
     }
 }
 
-fn get_id(
+pub fn get_id(
     parameters_values: &Option<&Vec<String>>,
     meta: &Box<dyn meta::common::Meta>,
 ) -> Result<String> {
@@ -255,4 +255,11 @@ fn setup_static_files(
         std::fs::copy(&template_cmakelists_file_path, &cmakelists_file_path)?;
     }
     Ok((interface_directory, src_directory, include_directory))
+}
+
+pub fn compile(interface_directory: &std::path::PathBuf) -> Result<std::path::PathBuf> {
+    log::info!("Compiling SDSL C shared library.");
+    let destination_path = cmake::build(&interface_directory);
+    let lib_path = destination_path.join("lib").join("libsdsl_c.so");
+    Ok(lib_path)
 }
