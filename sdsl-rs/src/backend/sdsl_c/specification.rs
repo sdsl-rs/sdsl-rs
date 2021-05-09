@@ -1,5 +1,6 @@
 use crate::meta;
-use anyhow::Result;
+use anyhow::{format_err, Result};
+use std::io::Write;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Specification {
@@ -70,11 +71,17 @@ pub fn setup(
     log::debug!("Setting up template specification directory.");
     let (interface_directory, src_directory, include_directory) =
         setup_static_files(&out_directory, &template_directory)?;
-    setup_source_files(
+    let new_files = setup_source_files(
         &specifications,
         &template_directory,
         &src_directory,
         &include_directory,
+    )?;
+    ensure_replacements(
+        &specifications,
+        &src_directory,
+        &include_directory,
+        &new_files,
     )?;
     Ok(interface_directory)
 }
@@ -84,9 +91,10 @@ fn setup_source_files(
     template_directory: &std::path::PathBuf,
     src_directory: &std::path::PathBuf,
     include_directory: &std::path::PathBuf,
-) -> Result<()> {
-    log::debug!("Setting up include files.");
+) -> Result<std::collections::BTreeSet<std::path::PathBuf>> {
+    log::debug!("Setting up source files.");
 
+    let mut new_files = std::collections::BTreeSet::<_>::new();
     let mut added_files = std::collections::BTreeSet::<_>::new();
     for specification in specifications {
         for file_specification in &specification.files {
@@ -111,28 +119,94 @@ fn setup_source_files(
             added_files.insert(target_file_path.clone());
             if !target_file_path.exists() {
                 std::fs::copy(&template_file_path, &target_file_path)?;
+                new_files.insert(target_file_path.clone());
             }
         }
     }
-    cleanup_stale_include_files(&added_files, &include_directory)?;
-    Ok(())
+    cleanup_stale_files(&added_files, &include_directory)?;
+    cleanup_stale_files(&added_files, &src_directory)?;
+    Ok(new_files)
 }
 
-fn cleanup_stale_include_files(
+fn cleanup_stale_files(
     files_to_keep: &std::collections::BTreeSet<std::path::PathBuf>,
-    include_directory: &std::path::PathBuf,
+    directory: &std::path::PathBuf,
 ) -> Result<()> {
-    for path in walkdir::WalkDir::new(&include_directory)
+    for path in walkdir::WalkDir::new(&directory)
         .into_iter()
         .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file())
         .map(|entry| entry.path().to_path_buf())
     {
-        if !files_to_keep.contains(&path) {
-            log::debug!("Removing stale include file: {}", path.display());
+        let file_name = path
+            .file_name()
+            .and_then(|f| f.to_str())
+            .ok_or(format_err!("Failed to obtain file name."))?;
+
+        if !files_to_keep.contains(&path) && file_name != "common.hpp" {
+            log::debug!("Removing stale file: {}", path.display());
             std::fs::remove_file(&path)?;
         }
     }
+    Ok(())
+}
+
+fn ensure_replacements(
+    specifications: &Vec<Specification>,
+    src_directory: &std::path::PathBuf,
+    include_directory: &std::path::PathBuf,
+    new_files: &std::collections::BTreeSet<std::path::PathBuf>,
+) -> Result<()> {
+    log::debug!("Editing source files with specification replacements.");
+
+    let mut processed_files = std::collections::BTreeSet::<std::path::PathBuf>::new();
+    for specification in specifications {
+        for file_specification in &specification.files {
+            let source_directory = match file_specification.c_file_type {
+                meta::common::CFileType::Hpp => include_directory,
+                meta::common::CFileType::Cpp => src_directory,
+            };
+
+            let target_file_path = source_directory.join(&file_specification.target_file_name);
+
+            // Ensure files are only processed once.
+            if !new_files.contains(&target_file_path) || processed_files.contains(&target_file_path)
+            {
+                continue;
+            }
+
+            replace_lines(&target_file_path, &file_specification.replacements)?;
+            processed_files.insert(target_file_path.clone());
+        }
+    }
+    Ok(())
+}
+
+fn replace_lines(
+    path: &std::path::PathBuf,
+    replacements: &std::collections::BTreeMap<String, String>,
+) -> Result<()> {
+    log::debug!("Actualize line replacement in file: {}", path.display());
+
+    let content = std::fs::read_to_string(&path)?;
+    let content_split: Vec<&str> = content.split('\n').collect();
+
+    let mut new_contents = Vec::<String>::new();
+    for line in content_split {
+        let mut line = line.to_string();
+        for (from, to) in replacements {
+            line = line.replace(&from.as_str(), &to.as_str());
+        }
+        new_contents.push(line);
+    }
+
+    std::fs::remove_file(&path)?;
+
+    let file = std::fs::File::create(&path).expect("Failed to create file");
+    let mut buffered_out = std::io::BufWriter::new(&file);
+    buffered_out.write_all(new_contents.join("\n").as_bytes())?;
+    file.sync_all()?;
+
     Ok(())
 }
 
@@ -150,6 +224,13 @@ fn setup_static_files(
     let include_directory = interface_directory.join("include");
     if !include_directory.exists() {
         std::fs::create_dir_all(&include_directory)?;
+    }
+    let common_include_file = interface_directory.join("include").join("common.hpp");
+    if !common_include_file.exists() {
+        std::fs::copy(
+            &template_directory.join("include").join("common.hpp"),
+            &common_include_file,
+        )?;
     }
 
     let src_directory = interface_directory.join("src");

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{format_err, Result};
 
 pub mod params;
 
@@ -82,4 +82,31 @@ impl<T: Path + params::Parameters> Regex for T {
         let structure_regex = format!(r".*{path};.*", path = self.path(),);
         Ok(Some(regex::Regex::new(&structure_regex)?))
     }
+}
+
+pub fn get_target_file_name(
+    template_file_name: &std::path::PathBuf,
+    id: &str,
+) -> Result<std::path::PathBuf> {
+    let stem = template_file_name
+        .file_stem()
+        .and_then(|s| s.to_str().to_owned())
+        .ok_or(format_err!(
+            "Failed to find stem for file: {}",
+            template_file_name.display()
+        ))?;
+    let extension = template_file_name
+        .extension()
+        .and_then(|s| s.to_str().to_owned())
+        .ok_or(format_err!(
+            "Failed to find extension for file: {}",
+            template_file_name.display()
+        ))?;
+    let target_file_name = format!(
+        "{stem}_{id}.{extension}",
+        stem = stem,
+        id = id,
+        extension = extension
+    );
+    Ok(std::path::PathBuf::from(target_file_name))
 }
