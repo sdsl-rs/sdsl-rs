@@ -1,8 +1,8 @@
 use anyhow::{format_err, Result};
 
 mod analyse;
-pub mod sdsl_c;
 mod common;
+pub mod sdsl_c;
 
 pub fn build() -> Result<()> {
     simple_logger::SimpleLogger::new().init()?;

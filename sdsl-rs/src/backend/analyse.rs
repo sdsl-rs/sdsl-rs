@@ -100,24 +100,26 @@ mod tests {
         let result = analyse(&code_metadata)?;
 
         let expected = vec![specification::Specification {
-            id: "4ca7a94e593428ab3e8c2cd3e6b936e3".to_string(),
+            id: "cf74c31dd58749289eb8c2e66a0cbd0d".to_string(),
             files: vec![
                 meta::common::FileSpecification {
-                    replacements: std::collections::BTreeMap::<String, String>::new(),
+                    replacements: maplit::btreemap! {
+                        "#include \"int_vector.hpp\"".to_string() => "#include \"int_vector_cf74c31dd58749289eb8c2e66a0cbd0d.hpp\"".to_string()
+                    },
                     template_file_name: std::path::PathBuf::from("int_vector.cpp"),
                     target_file_name: std::path::PathBuf::from(
-                        "int_vector_4ca7a94e593428ab3e8c2cd3e6b936e3.cpp",
+                        "int_vector_cf74c31dd58749289eb8c2e66a0cbd0d.cpp",
                     ),
                     c_file_type: meta::common::CFileType::Cpp,
                 },
                 meta::common::FileSpecification {
                     replacements: maplit::btreemap! {
-                        "#define WT_INT_ID".to_string() => "#define WT_INT_ID _4ca7a94e593428ab3e8c2cd3e6b936e3".to_string(),
-                        "#define WT_INT_TEMPLATE".to_string() => "#define WT_INT_TEMPLATE 1".to_string(),
+                        "#define INT_VECTOR_ID _id".to_string() => "#define INT_VECTOR_ID _cf74c31dd58749289eb8c2e66a0cbd0d".to_string(),
+                        "#define INT_VECTOR_TEMPLATE".to_string() => "#define INT_VECTOR_TEMPLATE 1".to_string(),
                     },
                     template_file_name: std::path::PathBuf::from("int_vector.hpp"),
                     target_file_name: std::path::PathBuf::from(
-                        "int_vector_4ca7a94e593428ab3e8c2cd3e6b936e3.hpp",
+                        "int_vector_cf74c31dd58749289eb8c2e66a0cbd0d.hpp",
                     ),
                     c_file_type: meta::common::CFileType::Hpp,
                 },

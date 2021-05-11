@@ -1,5 +1,4 @@
 use anyhow::{format_err, Result};
-use sharedlib::Symbol;
 
 pub mod params;
 
@@ -70,7 +69,7 @@ impl<T: Path + params::Parameters> Regex for T {
     }
 
     /// Return regex for structure without generic parameters
-    /// or where all paramaters have default values.
+    /// or where all parameters have default values.
     ///
     /// Returns None if structure has generic parameters without default.
     fn default_regex(&self) -> Result<Option<regex::Regex>> {
