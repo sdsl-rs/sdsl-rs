@@ -1,5 +1,6 @@
 use crate::meta::common;
-use anyhow::Result;
+use crate::meta::common::Code;
+use anyhow::{format_err, Result};
 
 pub struct IntVectorMeta;
 
@@ -15,30 +16,44 @@ impl common::Meta for IntVectorMeta {
         parameter_values: &Option<&Vec<String>>,
         id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
-        let header_template_file_name = std::path::PathBuf::from("int_vector.hpp");
-        let header_target_file_name =
-            common::get_target_file_name(&header_template_file_name, &id)?;
+        let header = get_header_specification(&parameter_values, &id)?;
+        let source = get_source_specification(&header, &id)?;
 
-        let header = common::FileSpecification {
-            replacements: get_header_replacements(&parameter_values, &id),
-            template_file_name: header_template_file_name.clone(),
-            target_file_name: header_target_file_name.clone(),
-            c_file_type: common::CFileType::Hpp,
-        };
+        let c_code: String = self.c_code(&parameter_values)?;
+        let util_specifications = common::util::get_file_specifications(&c_code, &id)?;
 
-        let source_template_file_name = std::path::PathBuf::from("int_vector.cpp");
-        let source = common::FileSpecification {
-            replacements: get_source_replacements(
-                &header_template_file_name,
-                &header_target_file_name,
-            ),
-            template_file_name: source_template_file_name.clone(),
-            target_file_name: common::get_target_file_name(&source_template_file_name, &id)?,
-            c_file_type: common::CFileType::Cpp,
-        };
-
-        Ok(vec![source, header])
+        let mut specifications = vec![source, header];
+        specifications.extend(util_specifications);
+        Ok(specifications)
     }
+}
+
+fn get_header_specification(
+    parameter_values: &Option<&Vec<String>>,
+    id: &str,
+) -> Result<common::FileSpecification> {
+    let template_file_name = std::path::PathBuf::from("int_vector.hpp");
+    let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
+
+    Ok(common::FileSpecification {
+        replacements: get_header_replacements(&parameter_values, &id),
+        template_file_name: template_file_name.clone(),
+        target_file_name: target_file_name.clone(),
+        c_file_type: common::CFileType::Hpp,
+    })
+}
+
+fn get_source_specification(
+    header: &common::FileSpecification,
+    id: &str,
+) -> Result<common::FileSpecification> {
+    let template_file_name = std::path::PathBuf::from("int_vector.cpp");
+    Ok(common::FileSpecification {
+        replacements: get_source_replacements(&header.template_file_name, &header.target_file_name),
+        template_file_name: template_file_name.clone(),
+        target_file_name: common::get_target_file_name(&template_file_name, &id)?,
+        c_file_type: common::CFileType::Cpp,
+    })
 }
 
 fn get_source_replacements(
@@ -75,6 +90,14 @@ fn get_header_replacements(
 impl common::Path for IntVectorMeta {
     fn path(&self) -> String {
         "sdsl::int_vector::IntVector".to_string()
+    }
+}
+
+impl common::Code for IntVectorMeta {
+    fn c_code(&self, parameter_values: &Option<&Vec<String>>) -> Result<String> {
+        let parameter_values =
+            parameter_values.ok_or(format_err!("Expected parameter values for this meta type."))?;
+        Ok(format!("sdsl::int_vector<{}>", parameter_values.join(", ")))
     }
 }
 

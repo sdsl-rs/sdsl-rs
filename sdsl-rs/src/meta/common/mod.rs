@@ -1,6 +1,7 @@
 use anyhow::{format_err, Result};
 
 pub mod params;
+pub mod util;
 
 #[derive(Debug, PartialEq, Eq, serde::Serialize)]
 pub enum CFileType {
@@ -16,7 +17,7 @@ pub struct FileSpecification {
     pub c_file_type: CFileType,
 }
 
-pub trait Meta: Regex + Path + params::Parameters {
+pub trait Meta: Regex + Path + Code + params::Parameters {
     fn file_specifications(
         &self,
         parameter_values: &Option<&Vec<String>>,
@@ -26,6 +27,11 @@ pub trait Meta: Regex + Path + params::Parameters {
 
 pub trait Path {
     fn path(&self) -> String;
+}
+
+pub trait Code {
+    /// C code render of meta.
+    fn c_code(&self, parameter_values: &Option<&Vec<String>>) -> Result<String>;
 }
 
 pub trait Regex: Path + params::Parameters {

@@ -2,7 +2,7 @@ use crate::backend::sdsl_c;
 use crate::meta;
 use anyhow::{format_err, Result};
 
-use crate::structures::common;
+use crate::interface::common;
 
 pub struct IntVector<const WIDTH: u8> {
     ptr: common::VoidPtr,
@@ -113,6 +113,18 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
     }
 }
 
+impl<const WIDTH: u8> common::util::Util for IntVector<WIDTH> {
+    fn util(&self) -> &common::util::Interface {
+        &self.interface.util
+    }
+}
+
+impl<const WIDTH: u8> common::Ptr for IntVector<WIDTH> {
+    fn ptr(&self) -> &common::VoidPtr {
+        &self.ptr
+    }
+}
+
 impl<const WIDTH: u8> Drop for IntVector<WIDTH> {
     fn drop(&mut self) {
         (self.interface.drop)(self.ptr)
@@ -148,13 +160,14 @@ struct Interface {
     store_to_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char, bool) -> bool,
     load_from_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char) -> bool,
 
+    util: common::util::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
 
 impl Interface {
     pub fn new(id: &str) -> Result<Self> {
         let lib = sdsl_c::LIB.clone();
-        let builder = sdsl_c::FunctionBuilder::new("int_vector", id, lib.clone());
+        let builder = sdsl_c::FunctionBuilder::new(Some("int_vector"), id, lib.clone());
 
         Ok(Self {
             create: builder.get("create")?,
@@ -175,6 +188,7 @@ impl Interface {
             store_to_file: builder.get("store_to_file")?,
             load_from_file: builder.get("load_from_file")?,
 
+            util: common::util::Interface::new(&id)?,
             _lib: lib.clone(),
         })
     }

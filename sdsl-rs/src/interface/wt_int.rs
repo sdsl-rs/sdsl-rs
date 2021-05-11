@@ -1,10 +1,10 @@
-use crate::structures;
+use crate::interface;
 
 pub struct WtInt<
-    BitVector = structures::bit_vector::BitVector,
-    Rank = structures::bit_vector::Rank,
-    Select = structures::bit_vector::Select,
-    SelectZero = structures::bit_vector::SelectZero,
+    BitVector = interface::bit_vector::BitVector,
+    Rank = interface::bit_vector::Rank,
+    Select = interface::bit_vector::Select,
+    SelectZero = interface::bit_vector::SelectZero,
 > {
     _bit_vector: BitVector,
     _rank: Rank,

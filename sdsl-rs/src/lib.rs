@@ -1,6 +1,6 @@
 mod backend;
+mod interface;
 mod meta;
-mod structures;
 
 pub use crate::backend::build;
-pub use crate::structures::{bit_vector, int_vector, wt_int};
+pub use crate::interface::{bit_vector, common::util, int_vector, wt_int};
