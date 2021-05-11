@@ -30,7 +30,7 @@ fn get_mir_file_path(
     std::fs::create_dir_all(&mir_tmp_directory)?;
 
     let mut child = std::process::Command::new("cargo")
-        .args(vec!["rustc", "--", "--emit=mir"])
+        .args(vec!["rustc", "--tests", "--", "--emit=mir"])
         .env(common::ENV_SKIP_BUILD, "1")
         .env("CARGO_TARGET_DIR", &mir_tmp_directory)
         .current_dir(crate_directory)
