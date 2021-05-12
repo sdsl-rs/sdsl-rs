@@ -83,20 +83,3 @@ fn test_set_width_error_on_immutable_width() -> Result<()> {
     assert!(iv.set_width(33).is_err());
     Ok(())
 }
-
-#[test]
-fn test_store_load_file() -> Result<()> {
-    let tmp_dir = tempdir::TempDir::new("sdsl-rs-tests")?;
-    let tmp_directory_path = tmp_dir.path().to_path_buf();
-    let path = tmp_directory_path.join("int_vector.bin");
-
-    let mut iv = sdsl::int_vector::IntVector::<28>::new(5, 12, None)?;
-    iv.set(2, 42);
-    iv.store_to_file(&path, true)?;
-
-    let loaded_iv = sdsl::int_vector::IntVector::<0>::from_file(5, 28, &path)?;
-    let result = loaded_iv.get(2);
-    let expected = 42;
-    assert_eq!(result, expected);
-    Ok(())
-}

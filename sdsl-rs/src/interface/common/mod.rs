@@ -1,3 +1,4 @@
+pub mod io;
 pub mod util;
 
 pub type VoidPtr = *mut libc::c_void;

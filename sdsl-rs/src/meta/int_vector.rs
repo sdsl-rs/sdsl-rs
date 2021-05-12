@@ -21,9 +21,11 @@ impl common::Meta for IntVectorMeta {
 
         let c_code: String = self.c_code(&parameter_values)?;
         let util_specifications = common::util::get_file_specifications(&c_code, &id)?;
+        let io_specifications = common::io::get_file_specifications(&c_code, &id)?;
 
         let mut specifications = vec![source, header];
         specifications.extend(util_specifications);
+        specifications.extend(io_specifications);
         Ok(specifications)
     }
 }

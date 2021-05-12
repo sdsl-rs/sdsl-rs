@@ -80,22 +80,6 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         }
     }
 
-    pub fn store_to_file(
-        &self,
-        path: &std::path::PathBuf,
-        write_fixed_as_variable: bool,
-    ) -> Result<bool> {
-        let path = path
-            .to_str()
-            .ok_or(format_err!("Failed to convert PathBuf into str"))?;
-        let path = std::ffi::CString::new(path)?;
-        Ok((self.interface.store_to_file)(
-            self.ptr,
-            path.as_ptr(),
-            write_fixed_as_variable,
-        ))
-    }
-
     pub fn from_file(size: u64, width: u8, path: &std::path::PathBuf) -> Result<Self> {
         assert!(
             WIDTH == 0,
@@ -108,7 +92,7 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
             .ok_or(format_err!("Failed to convert PathBuf into str."))?;
         let path = std::ffi::CString::new(path)?;
 
-        (int_vector.interface.load_from_file)(int_vector.ptr, path.as_ptr());
+        (int_vector.interface.io.load_from_file)(int_vector.ptr, path.as_ptr());
         Ok(int_vector)
     }
 }
@@ -116,6 +100,12 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
 impl<const WIDTH: u8> common::util::Util for IntVector<WIDTH> {
     fn util(&self) -> &common::util::Interface {
         &self.interface.util
+    }
+}
+
+impl<const WIDTH: u8> common::io::IO for IntVector<WIDTH> {
+    fn io(&self) -> &common::io::Interface {
+        &self.interface.io
     }
 }
 
@@ -157,9 +147,7 @@ struct Interface {
     width: extern "C" fn(*mut libc::c_void) -> u8,
     set_width: extern "C" fn(*mut libc::c_void, usize),
 
-    store_to_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char, bool) -> bool,
-    load_from_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char) -> bool,
-
+    pub io: common::io::Interface,
     util: common::util::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
@@ -185,9 +173,7 @@ impl Interface {
             width: builder.get("width")?,
             set_width: builder.get("set_width")?,
 
-            store_to_file: builder.get("store_to_file")?,
-            load_from_file: builder.get("load_from_file")?,
-
+            io: common::io::Interface::new(&id)?,
             util: common::util::Interface::new(&id)?,
             _lib: lib.clone(),
         })
