@@ -95,6 +95,10 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         (int_vector.interface.io.load_from_file)(int_vector.ptr, path.as_ptr());
         Ok(int_vector)
     }
+
+    pub fn iter(&self) -> common::VectorIterator<Self> {
+        common::VectorIterator::new(&self, self.len())
+    }
 }
 
 impl<const WIDTH: u8> common::util::Util for IntVector<WIDTH> {
@@ -112,6 +116,12 @@ impl<const WIDTH: u8> common::io::IO for IntVector<WIDTH> {
 impl<const WIDTH: u8> common::Ptr for IntVector<WIDTH> {
     fn ptr(&self) -> &common::VoidPtr {
         &self.ptr
+    }
+}
+
+impl<const WIDTH: u8> common::IterGet for IntVector<WIDTH> {
+    fn iter_get(&self, index: usize) -> usize {
+        (self.interface.get)(self.ptr, index)
     }
 }
 

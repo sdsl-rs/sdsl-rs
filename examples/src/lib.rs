@@ -1,3 +1,5 @@
+extern crate sdsl;
+
 #[cfg(test)]
 mod int_vector;
 

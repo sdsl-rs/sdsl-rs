@@ -86,10 +86,20 @@ fn test_set_width_error_on_immutable_width() -> Result<()> {
 
 #[test]
 fn test_literal_macro() -> Result<()> {
-    let iv = sdsl::int_vector!{1, 42, 3};
+    let iv = sdsl::int_vector! {1, 42, 3};
 
     let result = (iv.get(0), iv.get(1), iv.get(2));
     let expected = (1, 42, 3);
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
+fn test_iter() -> Result<()> {
+    let iv = sdsl::int_vector! {1, 42, 3};
+
+    let result = iv.iter().collect::<Vec<_>>();
+    let expected = vec![1, 42, 3];
     assert_eq!(result, expected);
     Ok(())
 }
