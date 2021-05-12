@@ -91,7 +91,7 @@ fn get_header_replacements(
 
 impl common::Path for IntVectorMeta {
     fn path(&self) -> String {
-        "sdsl::int_vector::IntVector".to_string()
+        "sdsl::IntVector".to_string()
     }
 }
 

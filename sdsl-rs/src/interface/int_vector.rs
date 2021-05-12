@@ -10,7 +10,7 @@ pub struct IntVector<const WIDTH: u8> {
 }
 
 impl<const WIDTH: u8> IntVector<WIDTH> {
-    pub fn new(size: u64, default_value: u64, width: Option<u8>) -> Result<Self> {
+    pub fn new(size: usize, default_value: usize, width: Option<u8>) -> Result<Self> {
         let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
         let id = sdsl_c::specification::get_id(&Some(&vec![WIDTH.to_string()]), &meta)?;
 
@@ -33,11 +33,11 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         (self.interface.len)(self.ptr)
     }
 
-    pub fn get(&self, pos: u64) -> usize {
-        (self.interface.get)(self.ptr, pos)
+    pub fn get(&self, index: usize) -> usize {
+        (self.interface.get)(self.ptr, index)
     }
 
-    pub fn set(&mut self, pos: u64, value: u64) {
+    pub fn set(&mut self, pos: usize, value: usize) {
         (self.interface.set)(self.ptr, pos, value)
     }
 
@@ -80,7 +80,7 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         }
     }
 
-    pub fn from_file(size: u64, width: u8, path: &std::path::PathBuf) -> Result<Self> {
+    pub fn from_file(size: usize, width: u8, path: &std::path::PathBuf) -> Result<Self> {
         assert!(
             WIDTH == 0,
             "Generic const WIDTH must be zero when loading from file."
@@ -132,12 +132,12 @@ impl<const WIDTH: u8> Clone for IntVector<WIDTH> {
 
 #[derive(Clone)]
 struct Interface {
-    create: extern "C" fn(u64, u64, u8) -> common::VoidPtr,
+    create: extern "C" fn(usize, usize, u8) -> common::VoidPtr,
     drop: extern "C" fn(*mut libc::c_void),
     clone: extern "C" fn(*mut libc::c_void) -> common::VoidPtr,
     len: extern "C" fn(*mut libc::c_void) -> usize,
-    get: extern "C" fn(*mut libc::c_void, u64) -> usize,
-    set: extern "C" fn(*mut libc::c_void, u64, u64),
+    get: extern "C" fn(*mut libc::c_void, usize) -> usize,
+    set: extern "C" fn(*mut libc::c_void, usize, usize),
     is_empty: extern "C" fn(*mut libc::c_void) -> bool,
     resize: extern "C" fn(*mut libc::c_void, usize),
     bit_resize: extern "C" fn(*mut libc::c_void, usize),
@@ -178,4 +178,24 @@ impl Interface {
             _lib: lib.clone(),
         })
     }
+}
+
+#[macro_export(local_inner_macros)]
+macro_rules! int_vector {
+    (@single $($x:tt)*) => (());
+    (@count $($rest:expr),*) => (<[()]>::len(&[$(int_vector!(@single $rest)),*]));
+
+    ($($key:expr,)+) => { int_vector!($($key),+) };
+    ($($key:expr),*) => {
+        {
+            let _size = int_vector!(@count $($key),*);
+            let mut _vec = sdsl::IntVector::<0>::new(_size, 0, Some(64))?;
+            let mut i = 0;
+            $(
+                _vec.set(i, $key);
+                i += 1;
+            )*
+            _vec
+        }
+    };
 }
