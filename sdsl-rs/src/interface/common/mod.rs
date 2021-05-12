@@ -40,3 +40,33 @@ impl<'a, T: IterGet> Iterator for VectorIterator<'a, T> {
         result
     }
 }
+
+pub struct VectorIntoIterator<T: IterGet> {
+    vector: T,
+    len: usize,
+    index: usize,
+}
+
+impl<T: IterGet> VectorIntoIterator<T> {
+    pub fn new(vector: T, len: usize) -> Self {
+        Self {
+            vector,
+            len,
+            index: 0,
+        }
+    }
+}
+
+impl<T: IterGet> Iterator for VectorIntoIterator<T> {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<usize> {
+        let result = if self.index < self.len {
+            Some(self.vector.iter_get(self.index))
+        } else {
+            None
+        };
+        self.index += 1;
+        result
+    }
+}

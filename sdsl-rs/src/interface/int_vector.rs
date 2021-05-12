@@ -140,6 +140,16 @@ impl<const WIDTH: u8> Clone for IntVector<WIDTH> {
     }
 }
 
+impl<const WIDTH: u8> IntoIterator for IntVector<WIDTH> {
+    type Item = usize;
+    type IntoIter = common::VectorIntoIterator<IntVector<WIDTH>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let len = self.len();
+        common::VectorIntoIterator::new(self, len)
+    }
+}
+
 #[derive(Clone)]
 struct Interface {
     create: extern "C" fn(usize, usize, u8) -> common::VoidPtr,

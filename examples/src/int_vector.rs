@@ -103,3 +103,13 @@ fn test_iter() -> Result<()> {
     assert_eq!(result, expected);
     Ok(())
 }
+
+#[test]
+fn test_into_iter() -> Result<()> {
+    let iv = sdsl::int_vector! {1, 42, 3};
+
+    let result = iv.into_iter().collect::<Vec<_>>();
+    let expected = vec![1, 42, 3];
+    assert_eq!(result, expected);
+    Ok(())
+}
