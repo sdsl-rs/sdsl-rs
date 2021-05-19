@@ -1,55 +1,53 @@
-use crate::meta::common::{self, Code, Parameters};
+use crate::meta::bit_vector;
+use crate::meta::common::{self, Parameters};
 use anyhow::Result;
 
-pub struct IntVectorMeta;
+pub struct RrrVectorMeta;
 
-impl IntVectorMeta {
+impl RrrVectorMeta {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl common::Meta for IntVectorMeta {
+impl common::Meta for RrrVectorMeta {
     fn file_specifications(
         &self,
         parameter_values: &Vec<String>,
         id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
-        let header = get_header_specification(&parameter_values, &id)?;
-        let source = get_source_specification(&header, &id)?;
+        let header = header_specification(&parameter_values, &id, &self)?;
+        let source = source_specification(&header, &id)?;
 
-        let c_code = self.c_code(&parameter_values)?;
-
-        let util_specifications = common::util::file_specifications(&c_code, &id)?;
-        let io_specifications = common::io::file_specifications(&c_code, &id)?;
+        let bit_vector_specs = bit_vector::file_specifications();
 
         let mut specifications = vec![source, header];
-        specifications.extend(util_specifications);
-        specifications.extend(io_specifications);
+        specifications.extend(bit_vector_specs);
         Ok(specifications)
     }
 }
 
-fn get_header_specification(
+fn header_specification(
     parameter_values: &Vec<String>,
     id: &str,
+    meta: &RrrVectorMeta,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("int_vector.hpp");
+    let template_file_name = std::path::PathBuf::from("rrr_vector.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
-        replacements: get_header_replacements(&parameter_values, &id),
+        replacements: get_header_replacements(&parameter_values, &id, &meta)?,
         template_file_name: template_file_name.clone(),
         target_file_name: target_file_name.clone(),
         c_file_type: common::CFileType::Hpp,
     })
 }
 
-fn get_source_specification(
+fn source_specification(
     header: &common::FileSpecification,
     id: &str,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("int_vector.cpp");
+    let template_file_name = std::path::PathBuf::from("rrr_vector.cpp");
     Ok(common::FileSpecification {
         replacements: get_source_replacements(&header.template_file_name, &header.target_file_name),
         template_file_name: template_file_name.clone(),
@@ -70,39 +68,48 @@ fn get_source_replacements(
 fn get_header_replacements(
     parameter_values: &Vec<String>,
     id: &str,
-) -> std::collections::BTreeMap<String, String> {
+    meta: &RrrVectorMeta,
+) -> Result<std::collections::BTreeMap<String, String>> {
     let mut replacements = maplit::btreemap! {};
 
-    let template = format!(
-        "#define INT_VECTOR_TEMPLATE {}",
-        parameter_values.join(", ")
+    let parameters = meta.parameters();
+    let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
+    replacements.insert(
+        "#define RRR_VECTOR_TEMPLATE 63, sdsl::int_vector<>, 32".to_string(),
+        format!(
+            "#define RRR_VECTOR_TEMPLATE {}",
+            parameter_values.join(", ")
+        ),
     );
-    replacements.insert("#define INT_VECTOR_TEMPLATE".to_string(), template);
 
     replacements.insert(
-        "#define INT_VECTOR_ID _id".to_string(),
-        format!("#define INT_VECTOR_ID _{}", id),
+        "#define RRR_VECTOR_ID _id".to_string(),
+        format!("#define RRR_VECTOR_ID _{}", id),
     );
 
-    replacements
+    Ok(replacements)
 }
 
-impl common::Path for IntVectorMeta {
+impl common::Path for RrrVectorMeta {
     fn path(&self) -> String {
-        "sdsl::IntVector".to_string()
+        "sdsl::RrrVector".to_string()
     }
 }
 
-impl common::Code for IntVectorMeta {
+impl common::Code for RrrVectorMeta {
     fn c_code(&self, parameter_values: &Vec<String>) -> Result<String> {
         let parameters = self.parameters();
         let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
-        Ok(format!("sdsl::int_vector<{}>", parameter_values.join(", ")))
+        Ok(format!("sdsl::rrr_vector<{}>", parameter_values.join(", ")))
     }
 }
 
-impl common::Parameters for IntVectorMeta {
+impl common::Parameters for RrrVectorMeta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
-        vec![common::params::Parameter::integer(0, false, 0)]
+        vec![
+            common::params::Parameter::sdsl(0, false, 1),
+            common::params::Parameter::integer(1, false, 0),
+            common::params::Parameter::integer(2, false, 2),
+        ]
     }
 }

@@ -3,19 +3,19 @@ use anyhow::{format_err, Result};
 use crate::backend::{common, sdsl_c::specification};
 use crate::meta;
 
-pub struct CodeMetadata {
+pub struct CodeMeta {
     pub mir: String,
 }
 
 pub fn setup(
     crate_directory: &std::path::PathBuf,
     out_directory: &std::path::PathBuf,
-) -> Result<Option<CodeMetadata>> {
+) -> Result<Option<CodeMeta>> {
     log::debug!("Generating code metadata.");
     Ok(match get_mir_file_path(&crate_directory, &out_directory)? {
         Some(path) => {
             let mir = std::fs::read_to_string(&path)?;
-            Some(CodeMetadata { mir })
+            Some(CodeMeta { mir })
         }
         None => None,
     })
@@ -59,30 +59,92 @@ fn get_mir_file_path(
     Ok(Some(mir_file_path))
 }
 
-pub fn analyse(code_metadata: &CodeMetadata) -> Result<Vec<specification::Specification>> {
+pub fn analyse(code_meta: &CodeMeta) -> Result<Vec<specification::Specification>> {
     log::debug!("Analyzing code metadata.");
     let mut interface_specs = Vec::<_>::new();
 
     for meta in meta::get_all()? {
         log::debug!("Identifying instances: {}", meta.path());
 
-        if let Some(regex) = meta.default_regex()? {
-            let capture_matches: Vec<_> = regex.captures_iter(&code_metadata.mir).collect();
-            if !capture_matches.is_empty() {
-                interface_specs.push(specification::Specification::default(&meta)?);
-            }
+        if let Some(spec) = default_specification(&code_meta, &meta)? {
+            interface_specs.push(spec);
         }
 
-        if let Some(regexes) = meta.parameters_regex()? {
-            for regex in regexes {
-                let capture_matches: Vec<_> = regex.captures_iter(&code_metadata.mir).collect();
-                for captures in capture_matches {
-                    interface_specs.push(specification::Specification::from_match_instance(
-                        &captures, &meta,
-                    )?);
-                }
-            }
-        }
+        let specs = parameters_specifications(&code_meta, &meta)?;
+        interface_specs.extend(specs);
     }
     Ok(interface_specs)
+}
+
+fn default_specification(
+    code_meta: &CodeMeta,
+    meta: &Box<dyn meta::common::Meta>,
+) -> Result<Option<specification::Specification>> {
+    if let Some(regex) = meta.default_regex()? {
+        let capture_matches: Vec<_> = regex.captures_iter(&code_meta.mir).collect();
+        if !capture_matches.is_empty() {
+            return Ok(Some(specification::Specification::new(
+                &Vec::<_>::new(),
+                &meta,
+            )?));
+        }
+    }
+    Ok(None)
+}
+
+fn parameters_specifications(
+    code_meta: &CodeMeta,
+    meta: &Box<dyn meta::common::Meta>,
+) -> Result<Vec<specification::Specification>> {
+    let mut specs = Vec::<_>::new();
+
+    let regexes = match meta.parameters_regex()? {
+        Some(regexes) => regexes,
+        None => return Ok(specs),
+    };
+
+    for regex in regexes {
+        let capture_matches: Vec<_> = regex.captures_iter(&code_meta.mir).collect();
+        for captures in capture_matches {
+            let parameter_values = parameter_values(&captures, &meta)?;
+            let spec = specification::Specification::new(&parameter_values, &meta)?;
+            specs.push(spec);
+        }
+    }
+
+    Ok(specs)
+}
+
+fn parameter_values(
+    captures: &regex::Captures,
+    meta: &Box<dyn meta::common::Meta>,
+) -> Result<Vec<String>> {
+    let mut values = Vec::<_>::new();
+    for (index, parameter) in meta.parameters().iter().enumerate() {
+        // +1 because skipping index 0 which contains the whole match
+        let mut value = captures
+            .get(index + 1)
+            .map_or("", |m| m.as_str())
+            .to_string();
+        if parameter.is_sdsl_type {
+            let spec = handle_sdsl_type(&value)?;
+            value = spec.c_code.clone();
+        }
+
+        values.push(value);
+    }
+    Ok(values)
+}
+
+fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specification> {
+    let specification = analyse(&CodeMeta {
+        mir: parameter_value.to_string() + ";",
+    })?
+    .into_iter()
+    .next()
+    .ok_or(format_err!(
+        "Expected single SDSL match for parameter value: {}",
+        parameter_value
+    ))?;
+    Ok(specification)
 }

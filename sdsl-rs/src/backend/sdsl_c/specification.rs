@@ -2,46 +2,29 @@ use crate::meta;
 use anyhow::{format_err, Result};
 use std::io::Write;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Specification {
     pub id: String,
     pub files: Vec<meta::common::FileSpecification>,
+    pub c_code: String,
 }
 
 impl Specification {
-    pub fn default(meta: &Box<dyn meta::common::Meta>) -> Result<Self> {
-        let id = get_id(&None, &meta)?;
-        let file_specifications = meta.file_specifications(&None, &id)?;
-        Ok(Self {
-            id: id.clone(),
-            files: file_specifications,
-        })
-    }
-
-    /// Construct from parameterized single match instance of meta struct in MIR.
-    pub fn from_match_instance(
-        captures: &regex::Captures,
+    pub fn new(
+        parameters_values: &Vec<String>,
         meta: &Box<dyn meta::common::Meta>,
     ) -> Result<Self> {
-        let mut parameters_values = Vec::<_>::new();
-        for (index, _parameter) in meta.parameters().iter().enumerate() {
-            // +1 because skipping index 0 which contains the whole match
-            let value = captures.get(index + 1).map_or("", |m| m.as_str());
-            parameters_values.push(value.to_string());
-        }
-
-        let id = get_id(&Some(&parameters_values), &meta)?;
-        let file_specifications = meta.file_specifications(&Some(&parameters_values), &id)?;
-
+        let id = get_id(&parameters_values, &meta)?;
         Ok(Self {
             id: id.clone(),
-            files: file_specifications,
+            files: meta.file_specifications(&parameters_values, &id)?,
+            c_code: meta.c_code(&parameters_values)?,
         })
     }
 }
 
 pub fn get_id(
-    parameters_values: &Option<&Vec<String>>,
+    parameters_values: &Vec<String>,
     meta: &Box<dyn meta::common::Meta>,
 ) -> Result<String> {
     let mut hasher = blake3::Hasher::new();

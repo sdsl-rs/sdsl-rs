@@ -4,13 +4,13 @@ pub mod io;
 pub mod params;
 pub mod util;
 
-#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
 pub enum CFileType {
     Cpp,
     Hpp,
 }
 
-#[derive(Debug, PartialEq, Eq, serde::Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize)]
 pub struct FileSpecification {
     pub replacements: std::collections::BTreeMap<String, String>,
     pub template_file_name: std::path::PathBuf,
@@ -18,10 +18,10 @@ pub struct FileSpecification {
     pub c_file_type: CFileType,
 }
 
-pub trait Meta: Regex + Path + Code + params::Parameters {
+pub trait Meta: Regex + Path + Code + Parameters {
     fn file_specifications(
         &self,
-        parameter_values: &Option<&Vec<String>>,
+        parameter_values: &Vec<String>,
         id: &str,
     ) -> Result<Vec<FileSpecification>>;
 }
@@ -30,17 +30,20 @@ pub trait Path {
     fn path(&self) -> String;
 }
 
-pub trait Code {
-    /// C code render of meta.
-    fn c_code(&self, parameter_values: &Option<&Vec<String>>) -> Result<String>;
+pub trait Code: Parameters {
+    fn c_code(&self, parameter_values: &Vec<String>) -> Result<String>;
 }
 
-pub trait Regex: Path + params::Parameters {
+pub trait Parameters {
+    fn parameters(&self) -> Vec<params::Parameter>;
+}
+
+pub trait Regex: Path + Parameters {
     fn parameters_regex(&self) -> Result<Option<Vec<regex::Regex>>>;
     fn default_regex(&self) -> Result<Option<regex::Regex>>;
 }
 
-impl<T: Path + params::Parameters> Regex for T {
+impl<T: Path + Parameters> Regex for T {
     /// Return regex for structure with generic parameters.
     ///
     /// Returns None if structure does not include generic parameters.
@@ -116,4 +119,15 @@ pub fn get_target_file_name(
         extension = extension
     );
     Ok(std::path::PathBuf::from(target_file_name))
+}
+
+pub fn c_sorted_parameters(
+    parameter_values: &Vec<String>,
+    parameters: &Vec<params::Parameter>,
+) -> Result<Vec<String>> {
+    let mut sorted_params = vec!["".to_string(); parameter_values.len()];
+    for (param, value) in parameters.iter().zip(parameter_values.iter()) {
+        sorted_params[param.c_index] = value.clone();
+    }
+    Ok(sorted_params)
 }

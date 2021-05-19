@@ -1,10 +1,23 @@
+use anyhow::Result;
 pub mod io;
 pub mod util;
 
-pub type VoidPtr = *mut libc::c_void;
+pub type VoidPtr = *const libc::c_void;
 
 pub trait Ptr {
     fn ptr(&self) -> &VoidPtr;
+}
+
+pub trait Id: ParameterValues {
+    fn id() -> Result<String>;
+}
+
+pub trait Code: ParameterValues {
+    fn c_code() -> Result<String>;
+}
+
+pub trait ParameterValues {
+    fn parameter_values() -> Result<Vec<String>>;
 }
 
 pub trait IterGet {

@@ -5,8 +5,8 @@ use crate::interface::common;
 
 #[derive(Clone)]
 pub struct Interface {
-    store_to_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char, bool) -> bool,
-    pub load_from_file: extern "C" fn(*mut libc::c_void, *const std::os::raw::c_char) -> bool,
+    store_to_file: extern "C" fn(common::VoidPtr, *const std::os::raw::c_char, bool) -> bool,
+    pub load_from_file: extern "C" fn(common::VoidPtr, *const std::os::raw::c_char) -> bool,
 
     _lib: std::sync::Arc<sharedlib::Lib>,
 }

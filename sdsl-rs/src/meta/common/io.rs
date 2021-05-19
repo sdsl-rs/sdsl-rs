@@ -1,7 +1,7 @@
 use crate::meta::common;
 use anyhow::Result;
 
-pub fn get_file_specifications(
+pub fn file_specifications(
     struct_c_code: &str,
     id: &str,
 ) -> Result<Vec<common::FileSpecification>> {

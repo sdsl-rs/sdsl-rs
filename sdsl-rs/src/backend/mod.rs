@@ -15,10 +15,10 @@ pub fn build() -> Result<()> {
     let out_directory = std::path::PathBuf::from(&out_directory);
 
     let crate_directory = get_crate_directory()?;
-    let code_metadata = analyse::setup(&crate_directory, &out_directory)?;
+    let code_meta = analyse::setup(&crate_directory, &out_directory)?;
 
-    let specifications = if let Some(code_metadata) = code_metadata {
-        analyse::analyse(&code_metadata)?
+    let specifications = if let Some(code_meta) = code_meta {
+        analyse::analyse(&code_meta)?
     } else {
         log::debug!("Failed to generate code metadata for analysis. Exiting SDSL build.");
         return Ok(());

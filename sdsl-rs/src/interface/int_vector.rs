@@ -2,7 +2,7 @@ use crate::backend::sdsl_c;
 use crate::meta;
 use anyhow::{format_err, Result};
 
-use crate::interface::common;
+use crate::interface::common::{self, Id, ParameterValues};
 
 pub struct IntVector<const WIDTH: u8> {
     ptr: common::VoidPtr,
@@ -11,9 +11,6 @@ pub struct IntVector<const WIDTH: u8> {
 
 impl<const WIDTH: u8> IntVector<WIDTH> {
     pub fn new(size: usize, default_value: usize, width: Option<u8>) -> Result<Self> {
-        let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
-        let id = sdsl_c::specification::get_id(&Some(&vec![WIDTH.to_string()]), &meta)?;
-
         assert!(
             (WIDTH == 0 && width.is_some()) || (WIDTH != 0 && width.is_none()),
             "Width argument must be specified iff WIDTH const generic value is 0."
@@ -23,6 +20,7 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
             None => WIDTH,
         };
 
+        let id = Self::id()?;
         let interface = Interface::new(&id)?;
         let ptr = (interface.create)(size, default_value, width);
 
@@ -119,6 +117,29 @@ impl<const WIDTH: u8> common::Ptr for IntVector<WIDTH> {
     }
 }
 
+impl<const WIDTH: u8> common::Id for IntVector<WIDTH> {
+    fn id() -> Result<String> {
+        let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let parameter_values = Self::parameter_values()?;
+        let id = sdsl_c::specification::get_id(&parameter_values, &meta)?;
+        Ok(id)
+    }
+}
+
+impl<const WIDTH: u8> common::Code for IntVector<WIDTH> {
+    fn c_code() -> Result<String> {
+        let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let parameter_values = Self::parameter_values()?;
+        Ok(meta.c_code(&parameter_values)?)
+    }
+}
+
+impl<const WIDTH: u8> common::ParameterValues for IntVector<WIDTH> {
+    fn parameter_values() -> Result<Vec<String>> {
+        Ok(vec![WIDTH.to_string()])
+    }
+}
+
 impl<const WIDTH: u8> common::IterGet for IntVector<WIDTH> {
     fn iter_get(&self, index: usize) -> usize {
         (self.interface.get)(self.ptr, index)
@@ -153,19 +174,19 @@ impl<const WIDTH: u8> IntoIterator for IntVector<WIDTH> {
 #[derive(Clone)]
 struct Interface {
     create: extern "C" fn(usize, usize, u8) -> common::VoidPtr,
-    drop: extern "C" fn(*mut libc::c_void),
-    clone: extern "C" fn(*mut libc::c_void) -> common::VoidPtr,
-    len: extern "C" fn(*mut libc::c_void) -> usize,
-    get: extern "C" fn(*mut libc::c_void, usize) -> usize,
-    set: extern "C" fn(*mut libc::c_void, usize, usize),
-    is_empty: extern "C" fn(*mut libc::c_void) -> bool,
-    resize: extern "C" fn(*mut libc::c_void, usize),
-    bit_resize: extern "C" fn(*mut libc::c_void, usize),
-    bit_size: extern "C" fn(*mut libc::c_void) -> usize,
-    capacity: extern "C" fn(*mut libc::c_void) -> usize,
-    data: extern "C" fn(*mut libc::c_void) -> common::VoidPtr,
-    width: extern "C" fn(*mut libc::c_void) -> u8,
-    set_width: extern "C" fn(*mut libc::c_void, usize),
+    drop: extern "C" fn(common::VoidPtr),
+    clone: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
+    len: extern "C" fn(common::VoidPtr) -> usize,
+    get: extern "C" fn(common::VoidPtr, usize) -> usize,
+    set: extern "C" fn(common::VoidPtr, usize, usize),
+    is_empty: extern "C" fn(common::VoidPtr) -> bool,
+    resize: extern "C" fn(common::VoidPtr, usize),
+    bit_resize: extern "C" fn(common::VoidPtr, usize),
+    bit_size: extern "C" fn(common::VoidPtr) -> usize,
+    capacity: extern "C" fn(common::VoidPtr) -> usize,
+    data: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
+    width: extern "C" fn(common::VoidPtr) -> u8,
+    set_width: extern "C" fn(common::VoidPtr, usize),
 
     pub io: common::io::Interface,
     util: common::util::Interface,
