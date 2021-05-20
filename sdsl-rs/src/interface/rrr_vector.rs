@@ -76,16 +76,6 @@ where
     }
 }
 
-// impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::util::Util
-//     for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
-// where
-//     BlockStore: common::Code,
-// {
-//     fn util(&self) -> &common::util::Interface {
-//         &self.interface.util
-//     }
-// }
-
 impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::io::IO
     for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
@@ -190,7 +180,6 @@ struct Interface {
     get_int: extern "C" fn(common::VoidPtr, usize, u8) -> usize,
 
     pub io: common::io::Interface,
-    // util: common::util::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
 
@@ -209,7 +198,6 @@ impl Interface {
             get_int: builder.get("get_int")?,
 
             io: common::io::Interface::new(&id)?,
-            // util: common::util::Interface::new(&id)?,
             _lib: lib.clone(),
         })
     }
