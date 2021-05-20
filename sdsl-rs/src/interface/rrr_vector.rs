@@ -103,7 +103,7 @@ where
         (self.interface.len)(self.ptr)
     }
 
-    /// Accessing the i-th element of the original bit vector.
+    /// Get the i-th element of the original bit vector.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
     pub fn get_bv_element(&self, index: usize) -> usize {
