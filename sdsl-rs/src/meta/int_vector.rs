@@ -21,7 +21,7 @@ impl common::Meta for IntVectorMeta {
         let c_code = self.c_code(&parameter_values)?;
 
         let util_specifications = common::util::file_specifications(&c_code, &id)?;
-        let io_specifications = common::io::file_specifications(&c_code, &id)?;
+        let io_specifications = common::io::file_specifications(&c_code, Some(&c_code), &id)?;
 
         let mut specifications = vec![source, header];
         specifications.extend(util_specifications);

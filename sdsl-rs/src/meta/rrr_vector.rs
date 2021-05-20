@@ -1,5 +1,5 @@
 use crate::meta::bit_vector;
-use crate::meta::common::{self, Parameters};
+use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
 pub struct RrrVectorMeta;
@@ -21,8 +21,12 @@ impl common::Meta for RrrVectorMeta {
 
         let bit_vector_specs = bit_vector::file_specifications();
 
+        let c_code = self.c_code(&parameter_values)?;
+        let io_specifications = common::io::file_specifications(&c_code, None, &id)?;
+
         let mut specifications = vec![source, header];
         specifications.extend(bit_vector_specs);
+        specifications.extend(io_specifications);
         Ok(specifications)
     }
 }

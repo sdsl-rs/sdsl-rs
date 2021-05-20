@@ -1,6 +1,6 @@
 use crate::meta;
 use crate::{backend::sdsl_c, interface::common::Ptr};
-use anyhow::Result;
+use anyhow::{format_err, Result};
 
 use crate::interface::common::{self, Id, ParameterValues};
 
@@ -31,6 +31,18 @@ where
         })
     }
 
+    pub fn default() -> Result<Self> {
+        let id = Self::id()?;
+        let interface = Interface::new(&id)?;
+        let ptr = (interface.default)();
+
+        Ok(Self {
+            _bs: None,
+            ptr,
+            interface,
+        })
+    }
+
     pub fn len(&self) -> usize {
         (self.interface.len)(self.ptr)
     }
@@ -50,6 +62,18 @@ where
     pub fn iter_int(&self, int_len: u8) -> RrrVectorIntIterator<Self> {
         RrrVectorIntIterator::new(&self, self.len(), int_len)
     }
+
+    pub fn from_file(path: &std::path::PathBuf) -> Result<Self> {
+        let rrr_vector = Self::default()?;
+
+        let path = path
+            .to_str()
+            .ok_or(format_err!("Failed to convert PathBuf into str."))?;
+        let path = std::ffi::CString::new(path)?;
+
+        (rrr_vector.interface.io.load_from_file)(rrr_vector.ptr, path.as_ptr());
+        Ok(rrr_vector)
+    }
 }
 
 // impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::util::Util
@@ -62,15 +86,15 @@ where
 //     }
 // }
 
-// impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::io::IO
-//     for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
-// where
-//     BlockStore: common::Code,
-// {
-//     fn io(&self) -> &common::io::Interface {
-//         &self.interface.io
-//     }
-// }
+impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::io::IO
+    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+where
+    BlockStore: common::Code,
+{
+    fn io(&self) -> &common::io::Interface {
+        &self.interface.io
+    }
+}
 
 impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Ptr
     for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
@@ -158,13 +182,14 @@ where
 #[derive(Clone)]
 struct Interface {
     create: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
+    default: extern "C" fn() -> common::VoidPtr,
     drop: extern "C" fn(common::VoidPtr),
     clone: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
     len: extern "C" fn(common::VoidPtr) -> usize,
     get_bv_element: extern "C" fn(common::VoidPtr, usize) -> usize,
     get_int: extern "C" fn(common::VoidPtr, usize, u8) -> usize,
 
-    // pub io: common::io::Interface,
+    pub io: common::io::Interface,
     // util: common::util::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
@@ -176,13 +201,14 @@ impl Interface {
 
         Ok(Self {
             create: builder.get("create")?,
+            default: builder.get("default")?,
             drop: builder.get("destroy")?,
             clone: builder.get("copy")?,
             len: builder.get("size")?,
             get_bv_element: builder.get("get_bv_element")?,
             get_int: builder.get("get_int")?,
 
-            // io: common::io::Interface::new(&id)?,
+            io: common::io::Interface::new(&id)?,
             // util: common::util::Interface::new(&id)?,
             _lib: lib.clone(),
         })
