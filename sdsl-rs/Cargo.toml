@@ -28,3 +28,6 @@ fs_extra = "1.2.0"
 cmake = "0.1.45"
 sharedlib = "7.0.0"
 libc = "0.2.94"
+
+[package.metadata.docs.rs]
+rustdoc-args = [ "--html-in-header", "katex-header.html" ]
