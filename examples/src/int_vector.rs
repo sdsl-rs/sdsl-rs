@@ -33,6 +33,17 @@ fn test_correct_len_after_resize() -> Result<()> {
 }
 
 #[test]
+fn test_resize_truncates_vector() -> Result<()> {
+    let mut iv = sdsl::int_vector! {1, 42, 3};
+    iv.resize(2);
+
+    let result: Vec<_> = iv.iter().collect();
+    let expected = vec![1, 42];
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
 fn test_correct_bit_size_after_resize() -> Result<()> {
     let mut iv = sdsl::IntVector::<0>::new(5, 42, Some(64))?;
     let before_bit_size = iv.bit_size();
@@ -42,6 +53,17 @@ fn test_correct_bit_size_after_resize() -> Result<()> {
 
     let result = (before_bit_size, after_bit_size);
     let expected = (320, 30);
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
+fn test_bit_resize_total_vector_thereby_truncating() -> Result<()> {
+    let mut iv = sdsl::int_vector! {1, 42, 3};
+    iv.bit_resize(2 * iv.width() as usize);
+
+    let result: Vec<_> = iv.iter().collect();
+    let expected = vec![1, 42];
     assert_eq!(result, expected);
     Ok(())
 }

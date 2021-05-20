@@ -4,12 +4,35 @@ use anyhow::{format_err, Result};
 
 use crate::interface::common::{self, Id, ParameterValues};
 
+/// A generic vector class for integers of width $ [1..64] $.
+///
+/// This generic vector class can be used to generate a vector that contains integers of fixed width $ [1..64] $.
+///
+/// # Arguments
+/// * `WIDTH` - Width of an integer. If set to `0` it is variable during runtime, otherwise fixed at compile time.
+///
+/// # Example
+/// ```ignore
+/// let mut iv = sdsl::IntVector::<0>::new(5, 42, Some(64))?;
+/// iv.bit_resize(2 * iv.width() as usize);
+///
+/// let result: Vec<_> = iv.iter().collect();
+/// let expected = vec![42, 42];
+/// assert_eq!(result, expected);
+/// ```
+///
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/int_vector.rs).
 pub struct IntVector<const WIDTH: u8> {
     ptr: common::VoidPtr,
     interface: Interface,
 }
 
 impl<const WIDTH: u8> IntVector<WIDTH> {
+    /// Construct a new integer vector.
+    /// # Arguments
+    /// * `size` - Number of elements.
+    /// * `default_value` - Default values for elements initialization.
+    /// * `width` - The width of each integer. Must be specified if `WIDTH == 0`.
     pub fn new(size: usize, default_value: usize, width: Option<u8>) -> Result<Self> {
         assert!(
             (WIDTH == 0 && width.is_some()) || (WIDTH != 0 && width.is_none()),
@@ -27,57 +50,9 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         Ok(Self { ptr, interface })
     }
 
-    pub fn len(&self) -> usize {
-        (self.interface.len)(self.ptr)
-    }
-
-    pub fn get(&self, index: usize) -> usize {
-        (self.interface.get)(self.ptr, index)
-    }
-
-    pub fn set(&mut self, pos: usize, value: usize) {
-        (self.interface.set)(self.ptr, pos, value)
-    }
-
-    pub fn is_empty(&self) -> bool {
-        (self.interface.is_empty)(self.ptr)
-    }
-
-    pub fn resize(&mut self, size: usize) {
-        (self.interface.resize)(self.ptr, size)
-    }
-
-    pub fn bit_resize(&mut self, size: usize) {
-        (self.interface.bit_resize)(self.ptr, size)
-    }
-
-    pub fn bit_size(&self) -> usize {
-        (self.interface.bit_size)(self.ptr)
-    }
-
-    pub fn capacity(&self) -> usize {
-        (self.interface.capacity)(self.ptr)
-    }
-
-    pub fn data(&self) -> common::VoidPtr {
-        // TODO: Tie pointer lifetime to self.
-        (self.interface.data)(self.ptr)
-    }
-
-    pub fn width(&self) -> u8 {
-        (self.interface.width)(self.ptr)
-    }
-
-    pub fn set_width(&mut self, value: usize) -> Result<()> {
-        if WIDTH != 0 {
-            Err(format_err!(
-                "WIDTH is non-zero. Width is therefore immutable."
-            ))
-        } else {
-            Ok((self.interface.set_width)(self.ptr, value))
-        }
-    }
-
+    /// Load vector from file.
+    /// # Arguments
+    /// * `path` - File path.
     pub fn from_file(size: usize, width: u8, path: &std::path::PathBuf) -> Result<Self> {
         assert!(
             WIDTH == 0,
@@ -94,6 +69,91 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         Ok(int_vector)
     }
 
+    /// Get the i-th element of the vector.
+    /// # Arguments
+    /// * `index` - An index in range $ [0, \mathrm{len}()) $.
+    pub fn get(&self, index: usize) -> usize {
+        (self.interface.get)(self.ptr, index)
+    }
+
+    /// Set the i-th element of the vector.
+    /// # Arguments
+    /// * `index` - An index in range $ [0, \mathrm{len}()) $.
+    /// * `value` - New element value.
+    pub fn set(&mut self, index: usize, value: usize) {
+        (self.interface.set)(self.ptr, index, value)
+    }
+
+    /// Returns true if the vector is empty, otherwise returns false.
+    pub fn is_empty(&self) -> bool {
+        (self.interface.is_empty)(self.ptr)
+    }
+
+    /// Resize the vector in terms of elements.
+    /// # Arguments
+    /// * `size` - Target number of elements.
+    pub fn resize(&mut self, size: usize) {
+        (self.interface.resize)(self.ptr, size)
+    }
+
+    /// Resize the total vector in terms of bits.
+    /// # Arguments
+    /// * `size` - The size to resize the vector in terms of bits.
+    pub fn bit_resize(&mut self, size: usize) {
+        (self.interface.bit_resize)(self.ptr, size)
+    }
+
+    /// The number of elements in the vector.
+    pub fn len(&self) -> usize {
+        (self.interface.len)(self.ptr)
+    }
+
+    // TODO: max_size
+
+    /// The number of bits in the vector.
+    pub fn bit_size(&self) -> usize {
+        (self.interface.bit_size)(self.ptr)
+    }
+
+    /// Returns the size of the occupied bits of the vector.
+    ///
+    /// The capacity of a vector is greater or equal to the
+    /// `bit_size()`.
+    pub fn capacity(&self) -> usize {
+        (self.interface.capacity)(self.ptr)
+    }
+
+    /// Constant pointer to the raw data of the vector.
+    pub fn data(&self) -> common::VoidPtr {
+        // TODO: Tie pointer lifetime to self.
+        (self.interface.data)(self.ptr)
+    }
+
+    // TODO: get_int
+    // TODO: set_int
+
+    /// Returns the width of the integers which are accessed via the `get(...)` method.
+    pub fn width(&self) -> u8 {
+        (self.interface.width)(self.ptr)
+    }
+
+    /// Sets the width of the integers which are accessed via the `get(...)` method, if `WIDTH` equals 0.
+    ///
+    /// This function does not bit resize each element in the vector.
+    /// Rather, after using this function, the raw data of the vector will be interpreted differently.
+    /// # Arguments
+    /// * `width` - New width of the integers.
+    pub fn set_width(&mut self, width: usize) -> Result<()> {
+        if WIDTH != 0 {
+            Err(format_err!(
+                "WIDTH is non-zero. Width is therefore immutable."
+            ))
+        } else {
+            Ok((self.interface.set_width)(self.ptr, width))
+        }
+    }
+
+    /// Returns an iterator over the vector values.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
     }
@@ -221,6 +281,18 @@ impl Interface {
     }
 }
 
+/// Create a **IntVector** from a list of elements.
+///
+/// Elements at construction have 64 bit widths.
+///
+/// # Example
+/// ```ignore
+/// let mut iv = sdsl::int_vector! {1, 12, 3};
+/// sdsl::util::bit_compress(&mut iv);
+/// let result = iv.width();
+/// let expected = 4;
+/// assert_eq!(result, expected);
+/// ```
 #[macro_export(local_inner_macros)]
 macro_rules! int_vector {
     (@single $($x:tt)*) => (());
