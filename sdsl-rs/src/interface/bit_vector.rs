@@ -1,5 +1,11 @@
 pub type BitVector = crate::interface::int_vector::IntVector<1>;
 
+/// Create a **BitVector** from a list of elements.
+///
+/// # Example
+/// ```ignore
+/// let bv = sdsl::bit_vector! {1, 1, 0, 1};
+/// ```
 #[macro_export(local_inner_macros)]
 macro_rules! bit_vector {
     (@single $($x:tt)*) => (());
