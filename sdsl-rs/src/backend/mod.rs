@@ -4,6 +4,21 @@ mod analyse;
 mod common;
 pub mod sdsl_c;
 
+/// Build the SDSL interface backend.
+///
+/// This function should be executed in the project's [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
+/// It analyses the project's code base and builds a suitable SDSL interface backend.
+///
+/// Example build script (`build.rs`):
+/// ```ignore
+/// fn main() {
+///     match sdsl::build() {
+///         Ok(_) => {}
+///         Err(e) => panic!("Error: {}", e),
+///     };
+/// }
+/// ```
+/// A working example can be found [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/build.rs).
 pub fn build() -> Result<()> {
     simple_logger::SimpleLogger::new().init()?;
 
