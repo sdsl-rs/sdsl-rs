@@ -9,8 +9,9 @@ pub mod sdsl_c;
 /// This function should be executed in the project's [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html).
 /// It analyses the project's code base and builds a suitable SDSL interface backend.
 ///
-/// Example build script (`build.rs`):
+/// # Example
 /// ```ignore
+/// // build.rs
 /// fn main() {
 ///     match sdsl::build() {
 ///         Ok(_) => {}
