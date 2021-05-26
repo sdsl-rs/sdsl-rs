@@ -4,7 +4,7 @@ use anyhow::{format_err, Result};
 
 use crate::interface::common::{self, Id, ParameterValues};
 
-/// A generic vector class for integers of width $ [1..64] $.
+/// A generic vector for integers of width $ [1..64] $ bits.
 ///
 /// This generic vector class can be used to generate a vector that contains integers of fixed width $ [1..64] $.
 ///
@@ -53,12 +53,12 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
     /// Load vector from file.
     /// # Arguments
     /// * `path` - File path.
-    pub fn from_file(size: usize, width: u8, path: &std::path::PathBuf) -> Result<Self> {
+    pub fn from_file(path: &std::path::PathBuf) -> Result<Self> {
         assert!(
             WIDTH == 0,
             "Generic const WIDTH must be zero when loading from file."
         );
-        let int_vector = Self::new(size, 0, Some(width))?;
+        let int_vector = Self::new(1, 0, Some(64))?;
 
         let path = path
             .to_str()
@@ -181,7 +181,7 @@ impl<const WIDTH: u8> common::Id for IntVector<WIDTH> {
     fn id() -> Result<String> {
         let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
         let parameter_values = Self::parameter_values()?;
-        let id = sdsl_c::specification::get_id(&parameter_values, &meta)?;
+        let id = sdsl_c::specification::get_id(&meta.c_code(&parameter_values)?)?;
         Ok(id)
     }
 }
@@ -218,6 +218,12 @@ impl<const WIDTH: u8> Clone for IntVector<WIDTH> {
             ptr: (self.interface.clone)(self.ptr),
             interface: self.interface.clone(),
         }
+    }
+}
+
+impl<const WIDTH: u8> std::fmt::Debug for IntVector<WIDTH> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_list().entries(self.iter()).finish()
     }
 }
 

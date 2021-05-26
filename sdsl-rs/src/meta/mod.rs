@@ -8,6 +8,7 @@ pub mod rrr_vector;
 pub fn get_all() -> Result<Vec<Box<dyn common::Meta>>> {
     Ok(vec![
         Box::new(int_vector::IntVectorMeta::new()) as Box<dyn common::Meta>,
+        Box::new(bit_vector::BitVectorMeta::new()) as Box<dyn common::Meta>,
         Box::new(rrr_vector::RrrVectorMeta::new()) as Box<dyn common::Meta>,
     ])
 }

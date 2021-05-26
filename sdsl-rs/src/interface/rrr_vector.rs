@@ -159,7 +159,7 @@ where
     fn id() -> Result<String> {
         let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
         let parameter_values = Self::parameter_values()?;
-        let id = sdsl_c::specification::get_id(&parameter_values, &meta)?;
+        let id = sdsl_c::specification::get_id(&meta.c_code(&parameter_values)?)?;
         Ok(id)
     }
 }

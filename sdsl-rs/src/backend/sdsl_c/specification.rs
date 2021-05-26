@@ -14,7 +14,7 @@ impl Specification {
         parameters_values: &Vec<String>,
         meta: &Box<dyn meta::common::Meta>,
     ) -> Result<Self> {
-        let id = get_id(&parameters_values, &meta)?;
+        let id = get_id(&meta.c_code(&parameters_values)?)?;
         Ok(Self {
             id: id.clone(),
             files: meta.file_specifications(&parameters_values, &id)?,
@@ -23,18 +23,9 @@ impl Specification {
     }
 }
 
-pub fn get_id(
-    parameters_values: &Vec<String>,
-    meta: &Box<dyn meta::common::Meta>,
-) -> Result<String> {
+pub fn get_id(c_code: &str) -> Result<String> {
     let mut hasher = blake3::Hasher::new();
-
-    add_serialized(&parameters_values, &mut hasher)?;
-    add_serialized(
-        &meta.file_specifications(&parameters_values, "")?,
-        &mut hasher,
-    )?;
-
+    add_serialized(&c_code, &mut hasher)?;
     let hash = hasher.finalize().to_hex().as_str().to_string();
     Ok(hash.chars().take(32).collect())
 }

@@ -8,4 +8,7 @@ mod io;
 mod int_vector;
 
 #[cfg(test)]
+mod bit_vector;
+
+#[cfg(test)]
 mod rrr_vector;

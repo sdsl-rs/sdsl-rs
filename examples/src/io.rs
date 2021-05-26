@@ -10,7 +10,7 @@ fn test_store_and_from_file() -> Result<()> {
     iv.set(2, 42);
     sdsl::io::store_int_vector_to_file(&iv, &path, true)?;
 
-    let loaded_iv = sdsl::IntVector::<0>::from_file(5, 28, &path)?;
+    let loaded_iv = sdsl::IntVector::<0>::from_file(&path)?;
     let result = loaded_iv.get(2);
     let expected = 42;
     assert_eq!(result, expected);

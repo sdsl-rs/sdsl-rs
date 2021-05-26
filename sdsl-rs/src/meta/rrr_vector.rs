@@ -1,4 +1,3 @@
-use crate::meta::bit_vector;
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
@@ -19,7 +18,8 @@ impl common::Meta for RrrVectorMeta {
         let header = header_specification(&parameter_values, &id, &self)?;
         let source = source_specification(&header, &id)?;
 
-        let bit_vector_specs = bit_vector::file_specifications();
+        let bit_vector_meta = crate::meta::bit_vector::BitVectorMeta::new();
+        let bit_vector_specs = bit_vector_meta.file_specifications(&Vec::<_>::new(), &id)?;
 
         let c_code = self.c_code(&parameter_values)?;
         let io_specifications = common::io::file_specifications(&c_code, None, &id)?;
