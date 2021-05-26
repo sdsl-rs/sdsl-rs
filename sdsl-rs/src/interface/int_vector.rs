@@ -108,7 +108,10 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         (self.interface.len)(self.ptr)
     }
 
-    // TODO: max_size
+    /// Maximum size of the vector.
+    pub fn max_size(&self) -> usize {
+        (self.interface.max_size)(self.ptr)
+    }
 
     /// The number of bits in the vector.
     pub fn bit_size(&self) -> usize {
@@ -128,9 +131,6 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
         // TODO: Tie pointer lifetime to self.
         (self.interface.data)(self.ptr)
     }
-
-    // TODO: get_int
-    // TODO: set_int
 
     /// Returns the width of the integers which are accessed via the `get(...)` method.
     pub fn width(&self) -> u8 {
@@ -242,17 +242,21 @@ struct Interface {
     create: extern "C" fn(usize, usize, u8) -> common::VoidPtr,
     drop: extern "C" fn(common::VoidPtr),
     clone: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
-    len: extern "C" fn(common::VoidPtr) -> usize,
-    get: extern "C" fn(common::VoidPtr, usize) -> usize,
-    set: extern "C" fn(common::VoidPtr, usize, usize),
     is_empty: extern "C" fn(common::VoidPtr) -> bool,
+
     resize: extern "C" fn(common::VoidPtr, usize),
     bit_resize: extern "C" fn(common::VoidPtr, usize),
+    len: extern "C" fn(common::VoidPtr) -> usize,
+    max_size: extern "C" fn(common::VoidPtr) -> usize,
     bit_size: extern "C" fn(common::VoidPtr) -> usize,
     capacity: extern "C" fn(common::VoidPtr) -> usize,
+
     data: extern "C" fn(common::VoidPtr) -> common::VoidPtr,
     width: extern "C" fn(common::VoidPtr) -> u8,
     set_width: extern "C" fn(common::VoidPtr, usize),
+
+    get: extern "C" fn(common::VoidPtr, usize) -> usize,
+    set: extern "C" fn(common::VoidPtr, usize, usize),
 
     pub io: common::io::Interface,
     util: common::util::Interface,
@@ -268,14 +272,18 @@ impl Interface {
             create: builder.get("create")?,
             drop: builder.get("destroy")?,
             clone: builder.get("copy")?,
-            len: builder.get("size")?,
-            get: builder.get("get_element")?,
-            set: builder.get("set_element")?,
             is_empty: builder.get("empty")?,
+
             resize: builder.get("resize")?,
             bit_resize: builder.get("bit_resize")?,
+            len: builder.get("size")?,
+            max_size: builder.get("max_size")?,
             bit_size: builder.get("bit_size")?,
             capacity: builder.get("capacity")?,
+
+            get: builder.get("get_element")?,
+            set: builder.get("set_element")?,
+
             data: builder.get("data")?,
             width: builder.get("width")?,
             set_width: builder.get("set_width")?,

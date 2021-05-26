@@ -135,3 +135,12 @@ fn test_into_iter() -> Result<()> {
     assert_eq!(result, expected);
     Ok(())
 }
+
+#[test]
+fn test_max_size() -> Result<()> {
+    let iv = sdsl::int_vector! {1, 42, 3};
+
+    let result = iv.max_size();
+    assert!(result > 0);
+    Ok(())
+}
