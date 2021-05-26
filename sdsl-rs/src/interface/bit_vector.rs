@@ -8,7 +8,7 @@ use crate::interface::common::{self, Id, ParameterValues};
 ///
 /// # Example
 /// ```ignore
-/// let mut bv = sdsl::BitVector::new(5, 1)?;
+/// let bv = sdsl::BitVector::new(5, 1)?;
 /// let result: Vec<_> = bv.iter().collect();
 /// let expected = vec![1, 1, 1, 1, 1];
 /// assert_eq!(result, expected);
