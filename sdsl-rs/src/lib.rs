@@ -1,4 +1,4 @@
-//! A Rust interface to the Succinct Data Structure Library ([SDSL-lite](https://github.com/simongog/sdsl-lite)).
+//! A Rust interface for the Succinct Data Structure Library ([SDSL-lite](https://github.com/simongog/sdsl-lite)).
 
 mod backend;
 mod interface;
