@@ -32,6 +32,7 @@ pub trait IO {
     fn io(&self) -> &Interface;
 }
 
+/// Write structure to file.
 pub fn store_to_file<T: IO + common::Ptr>(
     structure: &T,
     path: &std::path::PathBuf,
@@ -46,6 +47,7 @@ pub fn store_to_file<T: IO + common::Ptr>(
     ))
 }
 
+/// Write int vector to file.
 pub fn store_int_vector_to_file<T: IO + common::Ptr>(
     structure: &T,
     path: &std::path::PathBuf,
@@ -62,6 +64,7 @@ pub fn store_int_vector_to_file<T: IO + common::Ptr>(
     ))
 }
 
+/// Load structure from file.
 pub fn load_from_file<T: IO + common::Ptr>(
     structure: &mut T,
     path: &std::path::PathBuf,
