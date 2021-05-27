@@ -5,9 +5,9 @@ authors = ["rndhouse <rndhouse@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
-sdsl-rs = { path = "../sdsl-rs", version = "0.1.0" }
+sdsl = { path = "../sdsl-rs", version = "0.1.0" }
 anyhow = "1.0.40"
 tempdir = "0.3.7"
 
 [build-dependencies]
-sdsl-rs = { path = "../sdsl-rs", version = "0.1.0" }
+sdsl = { path = "../sdsl-rs", version = "0.1.0" }
