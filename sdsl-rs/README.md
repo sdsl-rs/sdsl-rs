@@ -22,6 +22,8 @@ Commonly missing dependencies include `libdivsufsort-dev`.
 
 ### SDSL-RS
 
+`SDSL-RS` uses [const generics](https://blog.rust-lang.org/2021/02/26/const-generics-mvp-beta.html) and therefore may require the `beta` Rust [toolchain](https://rust-lang.github.io/rustup/concepts/toolchains.html).
+
 Projects which use `SDSL-RS` must include a [build script](https://doc.rust-lang.org/cargo/reference/build-scripts.html) (`build.rs`) with contents such as:
 
 ```rust
