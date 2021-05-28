@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://docs.rs/sdsl"><img src="https://docs.rs/sdsl/badge.svg" alt="Docs"></a>
-  <a href="https://gitter.im/sdsl-rs/community"><img src="https://img.shields.io/gitter/room/sdsl-rs/community.svg" alt="Gitter"></a>
+  <a href="https://matrix.to/#/#sdsl-rs:matrix.org"><img src="https://img.shields.io/matrix/sdsl-rs:matrix.org?label=chat&logo=matrix" alt="Matrix"></a>
   <a href="https://github.com/sdsl-rs/sdsl-rs/discussions"><img src="https://img.shields.io/badge/github-discussions-red" alt="Discussions"></a>
 </p>
 
