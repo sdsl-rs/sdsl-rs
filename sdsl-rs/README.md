@@ -14,9 +14,93 @@
 
 Many of the data structures provided by the library are defined using C++ [templates](https://en.cppreference.com/w/cpp/language/class_template). This poses a challenge when interfacing with the library from languages other than C++. The primary aim of SDSL-RS is to take on the heavy lifting of interfacing with the library from Rust!
 
-## Proof-of-Concept (PoC)
+## Progress
 
-In its current state this library serves as a proof-of-concept. The interface provided is minimal and aims to address some tricky edge cases which arise when interfacing with C++ templates.
+The following list includes all structures which will be supported. The list was derived from the cheatsheet found [here](https://simongog.github.io/assets/data/sdsl-cheatsheet.pdf).
+
+Checked entries in the list are currently supported. The near term goal is to support one data structure from each section.
+
+Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for prioritization requests.
+
+<details>
+  <summary>Interface Complete Structures</summary>
+
+### Integer vectors
+
+* [x] IntVector
+
+### Bit vectors
+
+* [x] BitVector (plain bit vector)
+* [ ] BitVectorIl (interleaved bit vector)
+* [x] RrrVector (H<sub>0</sub> compressed bit vector)
+* [ ] SdVector (sparse bit vector)
+* [ ] HybVector (hybrid bit vector)
+
+### Rank Supports
+
+* [ ] RankSupportV
+* [ ] RankSupportV5
+* [ ] RankSupportScan
+* [ ] RankSupportIl
+* [ ] RankSupportRrr
+* [ ] RankSupportSd
+* [ ] RankSupportHyb
+
+### Select Supports
+
+* [ ] SelectSupportMcl
+* [ ] SelectSupportScan
+* [ ] SelectSupportIl
+* [ ] SelectSupportRrr
+* [ ] SelectSupportSd
+
+### Wavelet Trees
+
+* [ ] WtRlmn
+* [ ] WtGmr
+* [ ] WtAp
+* [ ] WtHuff
+* [ ] WmInt
+* [ ] WtBlcd
+* [ ] WtHutu
+* [ ] WtInt
+
+### Compressed Suffix Arrays
+
+* [ ] CsaBitcompressed
+* [ ] CsaSada
+* [ ] CsaWt
+
+### Longest Common Prefix Arrays
+
+* [ ] LcpBitcompressed
+* [ ] LcpDac
+* [ ] LcpByte
+* [ ] LcpWt
+* [ ] LcpVlc
+* [ ] LcpSupportSada
+* [ ] LcpSupportTree
+* [ ] LcpSupportTree2
+
+### Balanced Parentheses Supports
+
+* [ ] BpSupportG
+* [ ] BpSupportGg
+* [ ] BpSupportSada
+
+### Compressed Suffix Trees
+
+* [ ] CstSada
+* [ ] CstSct3
+
+### Range Min/Max Query
+
+* [ ] RmqSupportSparseTable
+* [ ] RmqSuccintSada
+* [ ] RmqSuccintSct
+
+</details>
 
 ## Requirements
 
