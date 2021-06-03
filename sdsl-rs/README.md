@@ -24,7 +24,7 @@ Checked entries in the list are currently supported. The near term goal is to su
 Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for prioritization requests.
 
 <details>
-  <summary>Interface Complete Structures</summary>
+  <summary>Full Structures Status List</summary>
 
 ### Integer vectors
 
