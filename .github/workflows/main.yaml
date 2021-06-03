@@ -1,0 +1,35 @@
+on: [push]
+
+name: CI
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ./make.sh
+        shell: bash
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: beta
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --all-features
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ./make.sh
+        shell: bash
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: beta
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
