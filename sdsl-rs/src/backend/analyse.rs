@@ -153,13 +153,3 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
     ))?;
     Ok(specification)
 }
-
-#[test]
-fn test_rank() -> Result<()> {
-    let mir = "    let mut _43: &sdsl::RankSupportV<sdsl::bit_patterns::P01>; // in scope 0 at examples/src/rank_support_v.rs:8:18: 8:20";
-    let x = analyse(&CodeMeta {
-        mir: mir.to_string(),
-    })?;
-    println!("{:?}", x);
-    Ok(())
-}
