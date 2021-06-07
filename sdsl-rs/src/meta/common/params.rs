@@ -67,6 +67,6 @@ impl Parameter {
     }
 }
 
-fn get_capture_group_name(index: usize) -> String {
+pub fn get_capture_group_name(index: usize) -> String {
     format!("i{index}", index = index)
 }

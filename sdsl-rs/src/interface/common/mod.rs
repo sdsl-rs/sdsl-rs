@@ -1,4 +1,5 @@
 use anyhow::Result;
+pub mod bit_patterns;
 pub mod io;
 pub mod util;
 

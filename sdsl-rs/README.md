@@ -40,7 +40,7 @@ Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for p
 
 ### Rank Supports
 
-* [ ] RankSupportV
+* [x] RankSupportV
 * [ ] RankSupportV5
 * [ ] RankSupportScan
 * [ ] RankSupportIl

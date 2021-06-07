@@ -70,7 +70,7 @@ pub fn analyse(code_meta: &CodeMeta) -> Result<Vec<specification::Specification>
             interface_specs.push(spec);
         }
 
-        let specs = parameters_specifications(&code_meta, &meta)?;
+        let specs = parameterized_specifications(&code_meta, &meta)?;
         interface_specs.extend(specs);
     }
     Ok(interface_specs)
@@ -92,7 +92,7 @@ fn default_specification(
     Ok(None)
 }
 
-fn parameters_specifications(
+fn parameterized_specifications(
     code_meta: &CodeMeta,
     meta: &Box<dyn meta::common::Meta>,
 ) -> Result<Vec<specification::Specification>> {
@@ -121,9 +121,9 @@ fn parameter_values(
 ) -> Result<Vec<String>> {
     let mut values = Vec::<_>::new();
     for (index, parameter) in meta.parameters().iter().enumerate() {
-        // +1 because skipping index 0 which contains the whole match
+        let capture_group_name = meta::common::params::get_capture_group_name(index);
         let mut value = captures
-            .get(index + 1)
+            .name(&capture_group_name)
             .map_or("", |m| m.as_str())
             .to_string();
         if parameter.is_sdsl_type {
@@ -137,8 +137,13 @@ fn parameter_values(
 }
 
 fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specification> {
+    let prefix = " ";
     let specification = analyse(&CodeMeta {
-        mir: parameter_value.to_string() + ";",
+        mir: format!(
+            "{prefix}{parameter};",
+            prefix = prefix,
+            parameter = parameter_value.to_string()
+        ),
     })?
     .into_iter()
     .next()
@@ -147,4 +152,14 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
         parameter_value
     ))?;
     Ok(specification)
+}
+
+#[test]
+fn test_rank() -> Result<()> {
+    let mir = "    let mut _43: &sdsl::RankSupportV<sdsl::bit_patterns::P01>; // in scope 0 at examples/src/rank_support_v.rs:8:18: 8:20";
+    let x = analyse(&CodeMeta {
+        mir: mir.to_string(),
+    })?;
+    println!("{:?}", x);
+    Ok(())
 }

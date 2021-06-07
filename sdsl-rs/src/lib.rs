@@ -6,5 +6,6 @@ mod meta;
 
 pub use crate::backend::build;
 pub use crate::interface::{
-    bit_vector::BitVector, common::io, common::util, int_vector::IntVector, rrr_vector::RrrVector,
+    bit_vector::BitVector, common::bit_patterns, common::io, common::util, int_vector::IntVector,
+    rank_support_v::RankSupportV, rrr_vector::RrrVector,
 };

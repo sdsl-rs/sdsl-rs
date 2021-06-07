@@ -1,5 +1,6 @@
 use anyhow::{format_err, Result};
 
+pub mod bit_patterns;
 pub mod io;
 pub mod params;
 pub mod util;
@@ -38,6 +39,8 @@ pub trait Parameters {
     fn parameters(&self) -> Vec<params::Parameter>;
 }
 
+static PATH_PREFIX_REGEX: &str = r"([ &]|(&mut ))";
+
 pub trait Regex: Path + Parameters {
     fn parameters_regex(&self) -> Result<Option<Vec<regex::Regex>>>;
     fn default_regex(&self) -> Result<Option<regex::Regex>>;
@@ -60,10 +63,12 @@ impl<T: Path + Parameters> Regex for T {
                 .collect::<Vec<String>>()
                 .join(r"\s*,\s*");
             let structure_regex = format!(
-                r".*{path}<{params}>;.*",
+                r"{prefix}{path}<{params}>;",
+                prefix = PATH_PREFIX_REGEX,
                 path = self.path(),
                 params = parameters_regex
             );
+            log::debug!("Using structure regex: {}", structure_regex);
             Ok(regex::Regex::new(&structure_regex)?)
         };
 
@@ -89,7 +94,12 @@ impl<T: Path + Parameters> Regex for T {
             return Ok(None);
         }
 
-        let structure_regex = format!(r".*{path};.*", path = self.path(),);
+        let structure_regex = format!(
+            r"{prefix}{path};",
+            prefix = PATH_PREFIX_REGEX,
+            path = self.path(),
+        );
+        log::debug!("Using structure regex: {}", structure_regex);
         Ok(Some(regex::Regex::new(&structure_regex)?))
     }
 }

@@ -12,3 +12,6 @@ mod bit_vector;
 
 #[cfg(test)]
 mod rrr_vector;
+
+#[cfg(test)]
+mod rank_support_v;
