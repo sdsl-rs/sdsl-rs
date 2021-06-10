@@ -15,3 +15,6 @@ mod rrr_vector;
 
 #[cfg(test)]
 mod rank_support_v;
+
+#[cfg(test)]
+mod select_support_mcl;
