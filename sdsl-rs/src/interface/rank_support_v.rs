@@ -21,7 +21,7 @@ use crate::interface::common::{self, Id, ParameterValues, Ptr};
 /// # Example
 /// ```ignore
 /// let bv = sdsl::bit_vector! {0, 1, 0, 1, 0, 0, 0};
-/// let mut rs = sdsl::RankSupportV::<sdsl::BitPatterns::P01>::new(&bv)?;
+/// let rs = sdsl::RankSupportV::<sdsl::BitPatterns::P01>::new(&bv)?;
 /// let result = rs.rank(4);
 /// let expected = 2;
 /// assert_eq!(result, expected);
