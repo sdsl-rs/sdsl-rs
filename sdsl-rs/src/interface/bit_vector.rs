@@ -8,7 +8,7 @@ use crate::interface::common::{self, Id, ParameterValues};
 ///
 /// # Example
 /// ```ignore
-/// let bv = sdsl::BitVector::new(5, 1)?;
+/// let bv = sdsl::bit_vectors::BitVector::new(5, 1)?;
 /// let result: Vec<_> = bv.iter().collect();
 /// let expected = vec![1, 1, 1, 1, 1];
 /// assert_eq!(result, expected);
@@ -316,7 +316,7 @@ macro_rules! bit_vector {
     ($($key:expr),*) => {
         {
             let _size = bit_vector!(@count $($key),*);
-            let mut _vec = sdsl::BitVector::new(_size, 0)?;
+            let mut _vec = sdsl::bit_vectors::BitVector::new(_size, 0)?;
             let mut i = 0;
             $(
                 _vec.set(i, $key);

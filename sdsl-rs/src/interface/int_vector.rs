@@ -13,7 +13,7 @@ use crate::interface::common::{self, Id, ParameterValues};
 ///
 /// # Example
 /// ```ignore
-/// let mut iv = sdsl::IntVector::<0>::new(5, 42, Some(64))?;
+/// let mut iv = sdsl::int_vectors::IntVector::<0>::new(5, 42, Some(64))?;
 /// iv.bit_resize(2 * iv.width() as usize);
 ///
 /// let result: Vec<_> = iv.iter().collect();
@@ -316,7 +316,7 @@ macro_rules! int_vector {
     ($($key:expr),*) => {
         {
             let _size = int_vector!(@count $($key),*);
-            let mut _vec = sdsl::IntVector::<0>::new(_size, 0, Some(64))?;
+            let mut _vec = sdsl::int_vectors::IntVector::<0>::new(_size, 0, Some(64))?;
             let mut i = 0;
             $(
                 _vec.set(i, $key);

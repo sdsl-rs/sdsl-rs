@@ -58,10 +58,10 @@ Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for p
 
 ### Wavelet Trees
 
+* [ ] WtHuff
 * [ ] WtRlmn
 * [ ] WtGmr
 * [ ] WtAp
-* [ ] WtHuff
 * [ ] WmInt
 * [ ] WtBlcd
 * [ ] WtHutu
@@ -144,11 +144,11 @@ The `sdsl::build()` function call allows `SDSL-RS` to analyse the current projec
 
 An example project can be found [here](https://github.com/sdsl-rs/sdsl-rs/tree/master/examples). It contains examples for all supported data structures.
 
-This example shows how to construct a H<sub>0</sub> compressed bit vector (`sdsl::RrrVector`):
+This example shows how to construct a H<sub>0</sub> compressed bit vector (`sdsl::bit_vectors::RrrVector`):
 
 ```rust
 let bv = sdsl::bit_vector! {1, 1, 0, 1};
-let rv = sdsl::RrrVector::<sdsl::IntVector<0>, 10, 2>::new(&bv)?;
+let rv = sdsl::bit_vectors::RrrVector::<sdsl::int_vectors::IntVector<0>, 10, 2>::new(&bv)?;
 
 let result = rv.get_bv_element(2);
 let expected = 0;

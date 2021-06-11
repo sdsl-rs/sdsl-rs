@@ -2,7 +2,7 @@ use anyhow::Result;
 
 #[test]
 fn test_cloned_vector_does_not_share_elements() -> Result<()> {
-    let bv = sdsl::BitVector::new(5, 1)?;
+    let bv = sdsl::bit_vectors::BitVector::new(5, 1)?;
     let mut bv_clone = bv.clone();
     bv_clone.set(1, 0);
 
@@ -14,7 +14,7 @@ fn test_cloned_vector_does_not_share_elements() -> Result<()> {
 
 #[test]
 fn test_len_gives_number_of_elements() -> Result<()> {
-    let bv = sdsl::BitVector::new(5, 1)?;
+    let bv = sdsl::bit_vectors::BitVector::new(5, 1)?;
     let result = bv.len();
     let expected = 5;
     assert_eq!(result, expected);
@@ -23,7 +23,7 @@ fn test_len_gives_number_of_elements() -> Result<()> {
 
 #[test]
 fn test_correct_len_after_resize() -> Result<()> {
-    let mut bv = sdsl::BitVector::new(5, 1)?;
+    let mut bv = sdsl::bit_vectors::BitVector::new(5, 1)?;
     bv.resize(6);
 
     let result = bv.len();
@@ -45,7 +45,7 @@ fn test_resize_truncates_vector() -> Result<()> {
 
 #[test]
 fn test_capacity_sufficient_multiple_of_64() -> Result<()> {
-    let bv = sdsl::BitVector::new(65, 1)?;
+    let bv = sdsl::bit_vectors::BitVector::new(65, 1)?;
     let result = bv.capacity();
     let expected = 128;
     assert_eq!(result, expected);

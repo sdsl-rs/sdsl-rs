@@ -79,3 +79,7 @@ pub fn load_from_file<T: IO + common::Ptr>(
         path.as_ptr(),
     ))
 }
+
+pub mod crate_export {
+    pub use super::{load_from_file, store_int_vector_to_file, store_to_file};
+}

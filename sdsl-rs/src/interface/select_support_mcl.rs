@@ -32,7 +32,7 @@ use crate::interface::common::{self, Id, ParameterValues, Ptr};
 /// # Example
 /// ```ignore
 /// let bv = sdsl::bit_vector! {0, 1, 0, 1, 0, 0, 0};
-/// let ss = sdsl::SelectSupportMcl::<sdsl::BitPatterns::P1>::new(&bv)?;
+/// let ss = sdsl::select_supports::SelectSupportMcl::<sdsl::BitPatterns::P1>::new(&bv)?;
 /// let result = ss.select(2);
 /// let expected = 3;
 /// assert_eq!(result, expected);

@@ -63,7 +63,7 @@ fn get_header_replacements(id: &str) -> std::collections::BTreeMap<String, Strin
 
 impl common::Path for BitVectorMeta {
     fn path(&self) -> String {
-        "sdsl::BitVector".to_string()
+        "sdsl::bit_vectors::BitVector".to_string()
     }
 }
 

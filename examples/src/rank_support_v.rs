@@ -3,7 +3,7 @@ use anyhow::Result;
 #[test]
 fn test_rank_p0() -> Result<()> {
     let bv = sdsl::bit_vector! {0, 1, 0, 1, 0, 0, 0};
-    let rs = sdsl::RankSupportV::<sdsl::bit_patterns::P0>::new(&bv)?;
+    let rs = sdsl::rank_supports::RankSupportV::<sdsl::bit_patterns::P0>::new(&bv)?;
 
     let result = rs.rank(5);
     let expected = 3;
@@ -14,7 +14,7 @@ fn test_rank_p0() -> Result<()> {
 #[test]
 fn test_rank_p1() -> Result<()> {
     let bv = sdsl::bit_vector! {1, 1, 0, 1, 0, 0, 0};
-    let rs = sdsl::RankSupportV::<sdsl::bit_patterns::P1>::new(&bv)?;
+    let rs = sdsl::rank_supports::RankSupportV::<sdsl::bit_patterns::P1>::new(&bv)?;
 
     let result = rs.rank(5);
     let expected = 3;
@@ -25,7 +25,7 @@ fn test_rank_p1() -> Result<()> {
 #[test]
 fn test_rank_p10() -> Result<()> {
     let bv = sdsl::bit_vector! {0, 1, 0, 1, 0, 0, 0};
-    let rs = sdsl::RankSupportV::<sdsl::bit_patterns::P10>::new(&bv)?;
+    let rs = sdsl::rank_supports::RankSupportV::<sdsl::bit_patterns::P10>::new(&bv)?;
 
     let result = rs.rank(4);
     let expected = 1;
@@ -36,7 +36,7 @@ fn test_rank_p10() -> Result<()> {
 #[test]
 fn test_rank_p01() -> Result<()> {
     let bv = sdsl::bit_vector! {0, 1, 0, 1, 0, 0, 0};
-    let rs = sdsl::RankSupportV::<sdsl::bit_patterns::P01>::new(&bv)?;
+    let rs = sdsl::rank_supports::RankSupportV::<sdsl::bit_patterns::P01>::new(&bv)?;
 
     let result = rs.rank(4);
     let expected = 2;

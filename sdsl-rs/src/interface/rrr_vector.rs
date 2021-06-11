@@ -32,7 +32,7 @@ use crate::interface::common::{self, Id, ParameterValues};
 ///
 /// ```ignore
 /// let bv = sdsl::bit_vector! {1, 1, 0, 1};
-/// let rv = sdsl::RrrVector::<sdsl::IntVector<0>, 10, 2>::new(&bv)?;
+/// let rv = sdsl::bit_vectors::RrrVector::<sdsl::int_vectors::IntVector<0>, 10, 2>::new(&bv)?;
 ///
 /// let result = rv.get_int(1, 3);
 /// let expected = 5;

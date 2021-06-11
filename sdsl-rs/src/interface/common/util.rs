@@ -60,3 +60,9 @@ pub fn bit_compress<T: Util + common::Ptr>(structure: &mut T) {
 pub fn expand_width<T: Util + common::Ptr>(structure: &mut T, new_width: u8) {
     (structure.util().expand_width)(*structure.ptr(), new_width)
 }
+
+pub mod crate_export {
+    pub use super::{
+        bit_compress, expand_width, modulus, set_random_bits, set_to_id, set_to_value,
+    };
+}

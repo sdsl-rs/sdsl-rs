@@ -89,7 +89,7 @@ fn get_header_replacements(
 
 impl common::Path for SelectSupportMclMeta {
     fn path(&self) -> String {
-        "sdsl::RankSupportV".to_string()
+        "sdsl::rank_supports::RankSupportV".to_string()
     }
 }
 

@@ -96,7 +96,7 @@ fn get_header_replacements(
 
 impl common::Path for RrrVectorMeta {
     fn path(&self) -> String {
-        "sdsl::RrrVector".to_string()
+        "sdsl::bit_vectors::RrrVector".to_string()
     }
 }
 
