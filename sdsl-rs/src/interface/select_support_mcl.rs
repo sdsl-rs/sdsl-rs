@@ -44,7 +44,7 @@ use crate::interface::common::{self, Id, ParameterValues, Ptr};
 /// - David Clark:
 ///   PhD Thesis: Compact Pat Trees
 ///   University of Waterloo, 1996 (Section 2.2.2).
-///   http://www.nlc-bnc.ca/obj/s4/f2/dsk3/ftp04/nq21335.pdf
+///   <http://www.nlc-bnc.ca/obj/s4/f2/dsk3/ftp04/nq21335.pdf>
 pub struct SelectSupportMcl<'a, BitPattern: common::bit_patterns::BitPattern> {
     // Dummy field so BitPattern is used, always None.
     _bp: Option<BitPattern>,
