@@ -58,7 +58,7 @@ Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for p
 
 ### Wavelet Trees
 
-* [ ] WtHuff
+* [x] WtHuff
 * [ ] WtRlmn
 * [ ] WtGmr
 * [ ] WtAp

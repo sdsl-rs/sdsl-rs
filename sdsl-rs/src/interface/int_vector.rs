@@ -177,7 +177,7 @@ impl<const WIDTH: u8> common::Ptr for IntVector<WIDTH> {
     }
 }
 
-impl<const WIDTH: u8> common::Id for IntVector<WIDTH> {
+impl<'a, const WIDTH: u8> common::Id for IntVector<WIDTH> {
     fn id() -> Result<String> {
         let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
         let parameter_values = Self::parameter_values()?;
@@ -186,7 +186,7 @@ impl<const WIDTH: u8> common::Id for IntVector<WIDTH> {
     }
 }
 
-impl<const WIDTH: u8> common::Code for IntVector<WIDTH> {
+impl<'a, const WIDTH: u8> common::Code for IntVector<WIDTH> {
     fn c_code() -> Result<String> {
         let meta = Box::new(meta::int_vector::IntVectorMeta::new()) as Box<dyn meta::common::Meta>;
         let parameter_values = Self::parameter_values()?;
@@ -194,7 +194,7 @@ impl<const WIDTH: u8> common::Code for IntVector<WIDTH> {
     }
 }
 
-impl<const WIDTH: u8> common::ParameterValues for IntVector<WIDTH> {
+impl<'a, const WIDTH: u8> common::ParameterValues for IntVector<WIDTH> {
     fn parameter_values() -> Result<Vec<String>> {
         Ok(vec![WIDTH.to_string()])
     }

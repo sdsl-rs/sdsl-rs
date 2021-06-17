@@ -27,3 +27,7 @@ pub mod rank_supports {
 pub mod select_supports {
     pub use crate::interface::select_support_mcl::SelectSupportMcl;
 }
+
+pub mod wavelet_trees {
+    pub use crate::interface::{byte_tree::ByteTree, wt_huff::WtHuff};
+}

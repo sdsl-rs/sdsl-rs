@@ -18,3 +18,6 @@ mod rank_support_v;
 
 #[cfg(test)]
 mod select_support_mcl;
+
+#[cfg(test)]
+mod wt_huff;

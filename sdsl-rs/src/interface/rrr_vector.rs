@@ -41,18 +41,18 @@ use crate::interface::common::{self, Id, ParameterValues};
 ///
 /// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/rrr_vector.rs).
 
-pub struct RrrVector<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16>
+pub struct RrrVector<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16>
 where
     BlockStore: common::Code,
 {
     // Dummy field so BlockStore is used, always None.
-    _bs: Option<BlockStore>,
+    _bs: &'a Option<BlockStore>,
     ptr: common::VoidPtr,
     interface: Interface,
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16>
-    RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16>
+    RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -65,7 +65,7 @@ where
         let ptr = (interface.create)(*bit_vector.ptr());
 
         Ok(Self {
-            _bs: None,
+            _bs: &None,
             ptr,
             interface,
         })
@@ -92,7 +92,7 @@ where
         let ptr = (interface.default)();
 
         Ok(Self {
-            _bs: None,
+            _bs: &None,
             ptr,
             interface,
         })
@@ -131,8 +131,8 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::io::IO
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::io::IO
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -141,8 +141,8 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Ptr
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Ptr
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -151,10 +151,10 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Id
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Id
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
-    BlockStore: common::Code,
+    BlockStore: common::Code + 'a,
 {
     fn id() -> Result<String> {
         let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
@@ -164,10 +164,10 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Code
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::Code
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
-    BlockStore: common::Code,
+    BlockStore: common::Code + 'a,
 {
     fn c_code() -> Result<String> {
         let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
@@ -176,8 +176,8 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::ParameterValues
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::ParameterValues
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -190,8 +190,8 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::IterGet
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::IterGet
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -200,8 +200,8 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> Drop
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> Drop
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
@@ -210,14 +210,14 @@ where
     }
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> Clone
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> Clone
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
     fn clone(&self) -> Self {
         Self {
-            _bs: None,
+            _bs: &None,
             ptr: (self.interface.clone)(self.ptr),
             interface: self.interface.clone(),
         }
@@ -262,8 +262,8 @@ pub trait IterGetInt {
     fn iter_get_int(&self, index: usize, int_len: u8) -> usize;
 }
 
-impl<BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> IterGetInt
-    for RrrVector<BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> IterGetInt
+    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {

@@ -84,3 +84,15 @@ impl<T: IterGet> Iterator for VectorIntoIterator<T> {
         result
     }
 }
+
+#[repr(C)]
+pub struct Pair<X, Y> {
+    x: X,
+    y: Y,
+}
+
+impl<X, Y> From<Pair<X, Y>> for (X, Y) {
+    fn from(pair: Pair<X, Y>) -> (X, Y) {
+        (pair.x, pair.y)
+    }
+}

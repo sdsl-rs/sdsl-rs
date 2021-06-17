@@ -6,6 +6,7 @@ pub mod int_vector;
 pub mod rank_support_v;
 pub mod rrr_vector;
 pub mod select_support_mcl;
+pub mod wt_huff;
 
 pub fn get_all() -> Result<Vec<Box<dyn common::Meta>>> {
     Ok(vec![
@@ -18,5 +19,6 @@ pub fn get_all() -> Result<Vec<Box<dyn common::Meta>>> {
         Box::new(common::bit_patterns::P1Meta::new()) as Box<dyn common::Meta>,
         Box::new(common::bit_patterns::P10Meta::new()) as Box<dyn common::Meta>,
         Box::new(common::bit_patterns::P01Meta::new()) as Box<dyn common::Meta>,
+        Box::new(wt_huff::WtHuffMeta::new()) as Box<dyn common::Meta>,
     ])
 }
