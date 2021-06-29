@@ -12,7 +12,7 @@ use crate::interface::common::{self, Id, ParameterValues, Ptr};
 /// (called L1-sampled bits) of $b$.
 /// This takes in the worst case $ \frac{m}{4096} \log{n} \leq \frac{n}{64} $ bits.
 ///
-/// Next, (1) if the distance of two adjacent L1-sampled bits $b[i]$ and $b[j]$
+/// Next, (1) if the distance of two adjacent L1-sampled bits $b\[i\]$ and $b\[j\]$
 /// is greater or equal than $\log^4 n$, then
 /// we store each of the 4096 positions of the set $b$ in [i..j-1] with
 /// $\log{n}$ bits. This results in at most
