@@ -2,7 +2,7 @@ use crate::meta;
 use crate::{backend::sdsl_c, interface::common::Ptr};
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParameterValues};
+use crate::interface::common::{self, Id, ParametersCCode};
 
 /// $ H_0 $-compressed bit vector representation.
 ///
@@ -158,8 +158,8 @@ where
 {
     fn id() -> Result<String> {
         let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        let id = sdsl_c::specification::get_id(&meta.c_code(&parameter_values)?)?;
+        let parameters_c_code = Self::parameters_c_code()?;
+        let id = sdsl_c::specification::get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(id)
     }
 }
@@ -171,17 +171,17 @@ where
 {
     fn c_code() -> Result<String> {
         let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::ParameterValues
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::ParametersCCode
     for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
 {
-    fn parameter_values() -> Result<Vec<String>> {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![
             BlockStore::c_code()?,
             BLOCK_SIZE.to_string(),

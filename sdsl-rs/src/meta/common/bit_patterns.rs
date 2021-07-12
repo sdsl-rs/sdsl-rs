@@ -1,18 +1,21 @@
 use crate::meta::common;
 use anyhow::Result;
 
-pub struct P0Meta;
+pub struct P0Meta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl P0Meta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for P0Meta {
     fn file_specifications(
         &self,
-        _parameter_values: &Vec<String>,
+        _parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         _id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
         Ok(vec![])
@@ -26,7 +29,7 @@ impl common::Path for P0Meta {
 }
 
 impl common::Code for P0Meta {
-    fn c_code(&self, _parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
         Ok("0, 1".to_string())
     }
 }
@@ -35,20 +38,31 @@ impl common::Parameters for P0Meta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
+    }
 }
 
-pub struct P1Meta;
+pub struct P1Meta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl P1Meta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for P1Meta {
     fn file_specifications(
         &self,
-        _parameter_values: &Vec<String>,
+        _parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         _id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
         Ok(vec![])
@@ -62,7 +76,7 @@ impl common::Path for P1Meta {
 }
 
 impl common::Code for P1Meta {
-    fn c_code(&self, _parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
         Ok("1, 1".to_string())
     }
 }
@@ -71,20 +85,31 @@ impl common::Parameters for P1Meta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
+    }
 }
 
-pub struct P10Meta;
+pub struct P10Meta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl P10Meta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for P10Meta {
     fn file_specifications(
         &self,
-        _parameter_values: &Vec<String>,
+        _parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         _id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
         Ok(vec![])
@@ -98,7 +123,7 @@ impl common::Path for P10Meta {
 }
 
 impl common::Code for P10Meta {
-    fn c_code(&self, _parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
         Ok("10, 2".to_string())
     }
 }
@@ -107,20 +132,31 @@ impl common::Parameters for P10Meta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
+    }
 }
 
-pub struct P01Meta;
+pub struct P01Meta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl P01Meta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for P01Meta {
     fn file_specifications(
         &self,
-        _parameter_values: &Vec<String>,
+        _parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         _id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
         Ok(vec![])
@@ -134,7 +170,7 @@ impl common::Path for P01Meta {
 }
 
 impl common::Code for P01Meta {
-    fn c_code(&self, _parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
         Ok("1, 2".to_string())
     }
 }
@@ -142,5 +178,13 @@ impl common::Code for P01Meta {
 impl common::Parameters for P01Meta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
     }
 }

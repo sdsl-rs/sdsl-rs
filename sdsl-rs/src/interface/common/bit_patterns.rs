@@ -1,4 +1,4 @@
-use crate::interface::common::ParameterValues;
+use crate::interface::common::ParametersCCode;
 use crate::meta;
 use anyhow::Result;
 
@@ -30,13 +30,13 @@ impl super::Code for P0 {
     fn c_code() -> Result<String> {
         let meta =
             Box::new(meta::common::bit_patterns::P0Meta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl super::ParameterValues for P0 {
-    fn parameter_values() -> Result<Vec<String>> {
+impl super::ParametersCCode for P0 {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
 }
@@ -62,13 +62,13 @@ impl super::Code for P1 {
     fn c_code() -> Result<String> {
         let meta =
             Box::new(meta::common::bit_patterns::P1Meta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl super::ParameterValues for P1 {
-    fn parameter_values() -> Result<Vec<String>> {
+impl super::ParametersCCode for P1 {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
 }
@@ -94,13 +94,13 @@ impl super::Code for P10 {
     fn c_code() -> Result<String> {
         let meta =
             Box::new(meta::common::bit_patterns::P10Meta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl super::ParameterValues for P10 {
-    fn parameter_values() -> Result<Vec<String>> {
+impl super::ParametersCCode for P10 {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
 }
@@ -127,13 +127,13 @@ impl super::Code for P01 {
     fn c_code() -> Result<String> {
         let meta =
             Box::new(meta::common::bit_patterns::P01Meta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl super::ParameterValues for P01 {
-    fn parameter_values() -> Result<Vec<String>> {
+impl super::ParametersCCode for P01 {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
 }

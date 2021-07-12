@@ -2,27 +2,30 @@ use crate::backend::sdsl_c;
 use crate::meta::common::{self, Code};
 use anyhow::Result;
 
-pub struct BitVectorMeta;
+pub struct BitVectorMeta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl BitVectorMeta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for BitVectorMeta {
     fn file_specifications(
         &self,
-        parameter_values: &Vec<String>,
+        parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         _id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
         // Type does not have generic parameters. Use common ID across instances.
-        let id = sdsl_c::specification::get_id(&self.c_code(&parameter_values)?)?;
+        let id = sdsl_c::specification::get_id(&self.c_code(&parameters_c_code)?)?;
 
         let header = get_header_specification(&id)?;
         let source = get_source_specification()?;
 
-        let c_code = self.c_code(&parameter_values)?;
+        let c_code = self.c_code(&parameters_c_code)?;
 
         let util_specifications = common::util::file_specifications(&c_code, &id)?;
         let io_specifications = common::io::file_specifications(&c_code, Some(&c_code), &id)?;
@@ -68,7 +71,7 @@ impl common::Path for BitVectorMeta {
 }
 
 impl common::Code for BitVectorMeta {
-    fn c_code(&self, _parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
         Ok("sdsl::bit_vector".to_string())
     }
 }
@@ -76,5 +79,13 @@ impl common::Code for BitVectorMeta {
 impl common::Parameters for BitVectorMeta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
     }
 }

@@ -1,27 +1,30 @@
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
-pub struct RrrVectorMeta;
+pub struct RrrVectorMeta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl RrrVectorMeta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for RrrVectorMeta {
     fn file_specifications(
         &self,
-        parameter_values: &Vec<String>,
+        parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
-        let header = header_specification(&parameter_values, &id, &self)?;
+        let header = header_specification(&parameters_c_code, &id, &self)?;
         let source = source_specification(&header, &id)?;
 
         let bit_vector_meta = crate::meta::bit_vector::BitVectorMeta::new();
-        let bit_vector_specs = bit_vector_meta.file_specifications(&Vec::<_>::new(), &id)?;
+        let bit_vector_specs = bit_vector_meta.file_specifications(&vec![], &vec![], &id)?;
 
-        let c_code = self.c_code(&parameter_values)?;
+        let c_code = self.c_code(&parameters_c_code)?;
         let io_specifications = common::io::file_specifications(&c_code, None, &id)?;
 
         let mut specifications = vec![source, header];
@@ -32,7 +35,7 @@ impl common::Meta for RrrVectorMeta {
 }
 
 fn header_specification(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
     meta: &RrrVectorMeta,
 ) -> Result<common::FileSpecification> {
@@ -40,7 +43,7 @@ fn header_specification(
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
-        replacements: get_header_replacements(&parameter_values, &id, &meta)?,
+        replacements: get_header_replacements(&parameters_c_code, &id, &meta)?,
         template_file_name: template_file_name.clone(),
         target_file_name: target_file_name.clone(),
         c_file_type: common::CFileType::Hpp,
@@ -70,19 +73,19 @@ fn get_source_replacements(
 }
 
 fn get_header_replacements(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
     meta: &RrrVectorMeta,
 ) -> Result<std::collections::BTreeMap<String, String>> {
     let mut replacements = maplit::btreemap! {};
 
     let parameters = meta.parameters();
-    let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
+    let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
     replacements.insert(
         "#define RRR_VECTOR_TEMPLATE 63, sdsl::int_vector<>, 32".to_string(),
         format!(
             "#define RRR_VECTOR_TEMPLATE {}",
-            parameter_values.join(", ")
+            parameters_c_code.join(", ")
         ),
     );
 
@@ -101,10 +104,13 @@ impl common::Path for RrrVectorMeta {
 }
 
 impl common::Code for RrrVectorMeta {
-    fn c_code(&self, parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
         let parameters = self.parameters();
-        let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
-        Ok(format!("sdsl::rrr_vector<{}>", parameter_values.join(", ")))
+        let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
+        Ok(format!(
+            "sdsl::rrr_vector<{}>",
+            parameters_c_code.join(", ")
+        ))
     }
 }
 
@@ -115,5 +121,13 @@ impl common::Parameters for RrrVectorMeta {
             common::params::Parameter::integer(1, false, 0),
             common::params::Parameter::integer(2, false, 2),
         ]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
     }
 }

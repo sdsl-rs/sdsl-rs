@@ -2,7 +2,7 @@ use crate::backend::sdsl_c;
 use crate::meta;
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParameterValues};
+use crate::interface::common::{self, Id, ParametersCCode};
 
 /// A bit vector where each element is 1 bit.
 ///
@@ -166,8 +166,8 @@ impl common::Ptr for BitVector {
 impl common::Id for BitVector {
     fn id() -> Result<String> {
         let meta = Box::new(meta::bit_vector::BitVectorMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        let id = sdsl_c::specification::get_id(&meta.c_code(&parameter_values)?)?;
+        let parameters_c_code = Self::parameters_c_code()?;
+        let id = sdsl_c::specification::get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(id)
     }
 }
@@ -175,13 +175,13 @@ impl common::Id for BitVector {
 impl common::Code for BitVector {
     fn c_code() -> Result<String> {
         let meta = Box::new(meta::bit_vector::BitVectorMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
-impl common::ParameterValues for BitVector {
-    fn parameter_values() -> Result<Vec<String>> {
+impl common::ParametersCCode for BitVector {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
 }

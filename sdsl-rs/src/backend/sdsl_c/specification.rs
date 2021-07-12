@@ -2,23 +2,47 @@ use crate::meta;
 use anyhow::{format_err, Result};
 use std::io::Write;
 
+/// A specification of a meta type and its parameters.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Specification {
-    pub id: String,
     pub files: Vec<meta::common::FileSpecification>,
     pub c_code: String,
 }
 
 impl Specification {
-    pub fn new(
-        parameters_values: &Vec<String>,
+    /// Create a specification from a meta and its parameter specifications.
+    pub fn from_parameterized_meta(
+        parameters_specifications: &Vec<Specification>,
         meta: &Box<dyn meta::common::Meta>,
     ) -> Result<Self> {
-        let id = get_id(&meta.c_code(&parameters_values)?)?;
+        let parameters_c_code = parameters_specifications
+            .iter()
+            .map(|spec| spec.c_code.clone())
+            .collect();
+        let parameters_file_specs: Vec<Vec<meta::common::FileSpecification>> =
+            parameters_specifications
+                .iter()
+                .map(|spec| spec.files.clone())
+                .collect();
+        let id = get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(Self {
-            id: id.clone(),
-            files: meta.file_specifications(&parameters_values, &id)?,
-            c_code: meta.c_code(&parameters_values)?,
+            files: meta.file_specifications(&parameters_c_code, &parameters_file_specs, &id)?,
+            c_code: meta.c_code(&parameters_c_code)?,
+        })
+    }
+
+    /// Create a specification from a meta and its default parameter values.
+    pub fn from_default_meta(meta: &Box<dyn meta::common::Meta>) -> Result<Self> {
+        let parameters_c_code = meta.default_parameters_c_code()?;
+        let mut parameters_file_specs = vec![];
+        for parameter_meta in meta.parameters_meta() {
+            parameters_file_specs.push(Self::from_default_meta(&parameter_meta)?.files);
+        }
+        let id = get_id(&meta.c_code(&parameters_c_code)?)?;
+
+        Ok(Self {
+            files: meta.file_specifications(&parameters_c_code, &parameters_file_specs, &id)?,
+            c_code: meta.c_code(&parameters_c_code)?,
         })
     }
 }

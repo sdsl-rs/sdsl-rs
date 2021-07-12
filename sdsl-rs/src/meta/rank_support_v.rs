@@ -1,24 +1,31 @@
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
-pub struct RankSupportVMeta;
+pub struct RankSupportVMeta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl RankSupportVMeta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
+    }
+
+    pub fn new_parameterized(parameters: Vec<Box<dyn common::Meta>>) -> Self {
+        Self { parameters }
     }
 }
 
 impl common::Meta for RankSupportVMeta {
     fn file_specifications(
         &self,
-        parameter_values: &Vec<String>,
+        parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
-        let header = get_header_specification(&parameter_values, &id)?;
+        let header = get_header_specification(&parameters_c_code, &id)?;
         let source = get_source_specification(&header, &id)?;
 
-        let c_code = self.c_code(&parameter_values)?;
+        let c_code = self.c_code(&parameters_c_code)?;
         let io_specifications = common::io::file_specifications(&c_code, None, &id)?;
 
         let mut specifications = vec![source, header];
@@ -28,14 +35,14 @@ impl common::Meta for RankSupportVMeta {
 }
 
 fn get_header_specification(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
 ) -> Result<common::FileSpecification> {
     let template_file_name = std::path::PathBuf::from("rank_support_v.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
-        replacements: get_header_replacements(&parameter_values, &id),
+        replacements: get_header_replacements(&parameters_c_code, &id),
         template_file_name: template_file_name.clone(),
         target_file_name: target_file_name.clone(),
         c_file_type: common::CFileType::Hpp,
@@ -65,14 +72,14 @@ fn get_source_replacements(
 }
 
 fn get_header_replacements(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
 ) -> std::collections::BTreeMap<String, String> {
     let mut replacements = maplit::btreemap! {};
 
     let template = format!(
         "#define RANK_SUPPORT_V_TEMPLATE {}",
-        parameter_values.join(", ")
+        parameters_c_code.join(", ")
     );
     replacements.insert("#define RANK_SUPPORT_V_TEMPLATE 1, 1".to_string(), template);
 
@@ -91,12 +98,12 @@ impl common::Path for RankSupportVMeta {
 }
 
 impl common::Code for RankSupportVMeta {
-    fn c_code(&self, parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
         let parameters = self.parameters();
-        let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
+        let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
         Ok(format!(
             "sdsl::rank_support_v<{}>",
-            parameter_values.join(", ")
+            parameters_c_code.join(", ")
         ))
     }
 }
@@ -104,5 +111,13 @@ impl common::Code for RankSupportVMeta {
 impl common::Parameters for RankSupportVMeta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![common::params::Parameter::sdsl(0, false, 0)]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
     }
 }

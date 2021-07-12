@@ -22,7 +22,8 @@ pub struct FileSpecification {
 pub trait Meta: Regex + Path + Code + Parameters {
     fn file_specifications(
         &self,
-        parameter_values: &Vec<String>,
+        parameters_c_code: &Vec<String>,
+        parameters_file_specs: &Vec<Vec<FileSpecification>>,
         id: &str,
     ) -> Result<Vec<FileSpecification>>;
 }
@@ -32,11 +33,13 @@ pub trait Path {
 }
 
 pub trait Code: Parameters {
-    fn c_code(&self, parameter_values: &Vec<String>) -> Result<String>;
+    fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String>;
 }
 
 pub trait Parameters {
     fn parameters(&self) -> Vec<params::Parameter>;
+    fn default_parameters_c_code(&self) -> Result<Vec<String>>;
+    fn parameters_meta(&self) -> &Vec<Box<dyn Meta>>;
 }
 
 static PATH_PREFIX_REGEX: &str = r"([ &]|(&mut ))";
@@ -132,12 +135,63 @@ pub fn get_target_file_name(
 }
 
 pub fn c_sorted_parameters(
-    parameter_values: &Vec<String>,
-    parameters: &Vec<params::Parameter>,
+    parameters_c_code: &Vec<String>,
+    parameter_definitions: &Vec<params::Parameter>,
 ) -> Result<Vec<String>> {
-    let mut sorted_params = vec!["".to_string(); parameter_values.len()];
-    for (param, value) in parameters.iter().zip(parameter_values.iter()) {
+    let mut sorted_params = vec!["".to_string(); parameters_c_code.len()];
+    for (param, value) in parameter_definitions.iter().zip(parameters_c_code.iter()) {
         sorted_params[param.c_index] = value.clone();
     }
     Ok(sorted_params)
+}
+
+pub struct GenericMeta {
+    parameters: Vec<Box<dyn Meta>>,
+    value: String,
+}
+
+impl GenericMeta {
+    pub fn new(value: &str) -> Self {
+        Self {
+            parameters: vec![],
+            value: value.to_string(),
+        }
+    }
+}
+
+impl Meta for GenericMeta {
+    fn file_specifications(
+        &self,
+        _parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<FileSpecification>>,
+        _id: &str,
+    ) -> Result<Vec<FileSpecification>> {
+        Ok(vec![])
+    }
+}
+
+impl Path for GenericMeta {
+    fn path(&self) -> String {
+        "".to_string()
+    }
+}
+
+impl Code for GenericMeta {
+    fn c_code(&self, _parameters_c_code: &Vec<String>) -> Result<String> {
+        Ok(self.value.clone())
+    }
+}
+
+impl Parameters for GenericMeta {
+    fn parameters(&self) -> Vec<params::Parameter> {
+        vec![]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn Meta>> {
+        &self.parameters
+    }
 }

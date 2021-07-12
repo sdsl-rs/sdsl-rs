@@ -1,24 +1,27 @@
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
-pub struct IntVectorMeta;
+pub struct IntVectorMeta {
+    parameters: Vec<Box<dyn common::Meta>>,
+}
 
 impl IntVectorMeta {
     pub fn new() -> Self {
-        Self {}
+        Self { parameters: vec![] }
     }
 }
 
 impl common::Meta for IntVectorMeta {
     fn file_specifications(
         &self,
-        parameter_values: &Vec<String>,
+        parameters_c_code: &Vec<String>,
+        _parameters_file_specs: &Vec<Vec<common::FileSpecification>>,
         id: &str,
     ) -> Result<Vec<common::FileSpecification>> {
-        let header = get_header_specification(&parameter_values, &id)?;
+        let header = get_header_specification(&parameters_c_code, &id)?;
         let source = get_source_specification(&header, &id)?;
 
-        let c_code = self.c_code(&parameter_values)?;
+        let c_code = self.c_code(&parameters_c_code)?;
 
         let util_specifications = common::util::file_specifications(&c_code, &id)?;
         let io_specifications = common::io::file_specifications(&c_code, Some(&c_code), &id)?;
@@ -31,14 +34,14 @@ impl common::Meta for IntVectorMeta {
 }
 
 fn get_header_specification(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
 ) -> Result<common::FileSpecification> {
     let template_file_name = std::path::PathBuf::from("int_vector.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
-        replacements: get_header_replacements(&parameter_values, &id),
+        replacements: get_header_replacements(&parameters_c_code, &id),
         template_file_name: template_file_name.clone(),
         target_file_name: target_file_name.clone(),
         c_file_type: common::CFileType::Hpp,
@@ -68,14 +71,14 @@ fn get_source_replacements(
 }
 
 fn get_header_replacements(
-    parameter_values: &Vec<String>,
+    parameters_c_code: &Vec<String>,
     id: &str,
 ) -> std::collections::BTreeMap<String, String> {
     let mut replacements = maplit::btreemap! {};
 
     let template = format!(
         "#define INT_VECTOR_TEMPLATE {}",
-        parameter_values.join(", ")
+        parameters_c_code.join(", ")
     );
     replacements.insert("#define INT_VECTOR_TEMPLATE".to_string(), template);
 
@@ -94,15 +97,26 @@ impl common::Path for IntVectorMeta {
 }
 
 impl common::Code for IntVectorMeta {
-    fn c_code(&self, parameter_values: &Vec<String>) -> Result<String> {
+    fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
         let parameters = self.parameters();
-        let parameter_values = common::c_sorted_parameters(&parameter_values, &parameters)?;
-        Ok(format!("sdsl::int_vector<{}>", parameter_values.join(", ")))
+        let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
+        Ok(format!(
+            "sdsl::int_vector<{}>",
+            parameters_c_code.join(", ")
+        ))
     }
 }
 
 impl common::Parameters for IntVectorMeta {
     fn parameters(&self) -> Vec<common::params::Parameter> {
         vec![common::params::Parameter::integer(0, false, 0)]
+    }
+
+    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+        Ok(vec![])
+    }
+
+    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters
     }
 }

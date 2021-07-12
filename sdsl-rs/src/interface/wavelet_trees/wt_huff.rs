@@ -2,7 +2,7 @@ use crate::meta;
 use crate::{backend::sdsl_c, interface::common::Ptr};
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParameterValues};
+use crate::interface::common::{self, Id, ParametersCCode};
 
 /// A Huffman-shaped wavelet tree.
 ///
@@ -33,15 +33,16 @@ use crate::interface::common::{self, Id, ParameterValues};
 /// # References
 /// The idea of using a Huffman shaped wavelet was first mentioned on page 17
 /// of the following technical report:
+///
 /// Veli Mäkinen and Gonzalo Navarro:
-/// `Succinct Suffix Arrays based on Run-Length Encoding.`,
+/// "Succinct Suffix Arrays based on Run-Length Encoding.",
 /// <http://swp.dcc.uchile.cl/TR/2005/TR_DCC-2005-004.pdf>
 ///
 /// # Example
 ///
 /// ```ignore
 /// let bv = sdsl::bit_vector! {1, 1, 0, 1};
-/// let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector, 10, 2>::from_bit_vector(&bv)?;
+/// let wt = sdsl::wavelet_trees::WtHuff::<>::from_bit_vector(&bv)?;
 ///
 /// let result = wt.get_int(1, 3);
 /// let expected = 5;
@@ -55,7 +56,7 @@ pub struct WtHuff<
     RankSupport1 = crate::rank_supports::RankSupportV<'a, crate::bit_patterns::P1>,
     SelectSupport1 = crate::select_supports::SelectSupportMcl<'a, crate::bit_patterns::P1>,
     SelectSupport0 = crate::select_supports::SelectSupportMcl<'a, crate::bit_patterns::P0>,
-    TreeStrategy = crate::wavelet_trees::ByteTree,
+    TreeStrategy = crate::interface::wavelet_trees::layouts::byte_tree::ByteTree,
 > where
     BitVector: common::Code,
     RankSupport1: common::Code,
@@ -167,7 +168,7 @@ where
 
     /// Returns a count of the given symbol within the prefix $ [0, \mathrm{index}-1] $.
     ///
-    /// The time complexity is $ \Order{H_0} $ on average, where $ H_0 $ is the zero order entropy of the sequence.
+    /// The time complexity is $ \mathcal{O}(H_0) $ on average, where $ H_0 $ is the zero order entropy of the sequence.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
     /// * `symbol` - Symbol.
@@ -177,13 +178,44 @@ where
 
     /// Returns the symbol `wt[index]` and a count of its occurrences within the prefix $ [0, \mathrm{index}-1] $.
     ///
-    /// The time complexity is $ \Order{H_0} $ on average, where $ H_0 $ is the zero order entropy of the sequence.
+    /// The time complexity is $ \mathcal{O}(H_0) $ on average, where $ H_0 $ is the zero order entropy of the sequence.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
     pub fn inverse_select(&self, index: usize) -> (usize, usize) {
         let (rank, symbol) = (self.interface.inverse_select)(self.ptr, index).into();
         (symbol, rank)
     }
+
+    /// Returns the index of the i-th occurrence of the given symbol in the supported vector.
+    ///
+    /// The time complexity is $ \mathcal{O}(H_0) $ on average, where $ H_0 $ is the zero order entropy of the sequence.
+    /// Precondition: $ 1 \leq \mathrm{index} \leq \mathrm{rank}(\mathrm{len}(), \mathrm{symbol}) $.
+    /// # Arguments
+    /// * `i` - i-th symbol occurrence.
+    /// * `symbol` - Symbol.
+    pub fn select(&self, i: usize, symbol: usize) -> usize {
+        (self.interface.select)(self.ptr, i, symbol)
+    }
+
+    // /// For each symbol c in wt[i..j-1] get rank(i,c) and rank(j,c).
+    // ///
+    // /// The time complexity is $ \mathcal{O}(\min{\sigma, k \log \sigma}) $
+    // /// Precondition:
+    // ///
+    // /// # Arguments
+    // /// * `start_index` - The start index (inclusive) of the interval.
+    // /// * `end_index` - The end index (exclusive) of the interval.
+    // pub fn interval_symbols(&self, start_index: usize, end_index: usize, alphabet_size: usize) {
+    //     let result =
+    //         (self.interface.interval_symbols)(self.ptr, start_index, end_index, alphabet_size);
+    //     let cs = unsafe { std::slice::from_raw_parts(result.cs, result.length) };
+    //     let rank_c_i = unsafe { std::slice::from_raw_parts(result.rank_c_i, result.length) };
+    //     let rank_c_j = unsafe { std::slice::from_raw_parts(result.rank_c_j, result.length) };
+
+    //     for i in cs {
+    //         println!("cs: {}", i);
+    //     }
+    // }
 
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
@@ -229,9 +261,10 @@ where
     TreeStrategy: common::Code + 'a,
 {
     fn id() -> Result<String> {
-        let meta = Box::new(meta::wt_huff::WtHuffMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        let id = sdsl_c::specification::get_id(&meta.c_code(&parameter_values)?)?;
+        let meta = Box::new(meta::wavelet_trees::wt_huff::WtHuffMeta::new())
+            as Box<dyn meta::common::Meta>;
+        let parameters_c_code = Self::parameters_c_code()?;
+        let id = sdsl_c::specification::get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(id)
     }
 }
@@ -246,14 +279,15 @@ where
     TreeStrategy: common::Code,
 {
     fn c_code() -> Result<String> {
-        let meta = Box::new(meta::wt_huff::WtHuffMeta::new()) as Box<dyn meta::common::Meta>;
-        let parameter_values = Self::parameter_values()?;
-        Ok(meta.c_code(&parameter_values)?)
+        let meta = Box::new(meta::wavelet_trees::wt_huff::WtHuffMeta::new())
+            as Box<dyn meta::common::Meta>;
+        let parameters_c_code = Self::parameters_c_code()?;
+        Ok(meta.c_code(&parameters_c_code)?)
     }
 }
 
 impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
-    common::ParameterValues
+    common::ParametersCCode
     for WtHuff<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
 where
     BitVector: common::Code,
@@ -262,7 +296,7 @@ where
     SelectSupport0: common::Code,
     TreeStrategy: common::Code,
 {
-    fn parameter_values() -> Result<Vec<String>> {
+    fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![
             BitVector::c_code()?,
             RankSupport1::c_code()?,
@@ -324,6 +358,15 @@ where
     }
 }
 
+#[repr(C)]
+struct ResultIntervalSymbols {
+    interval_alphabet_size: usize,
+    length: usize,
+    cs: *const u8, // TODO: Type depends on tree strategy.
+    rank_c_i: *const u64,
+    rank_c_j: *const u64,
+}
+
 #[derive(Clone)]
 struct Interface {
     create: extern "C" fn() -> common::VoidPtr,
@@ -339,7 +382,8 @@ struct Interface {
     get: extern "C" fn(common::VoidPtr, usize) -> usize,
     rank: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
     inverse_select: extern "C" fn(common::VoidPtr, usize) -> common::Pair<usize, usize>,
-
+    select: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
+    // interval_symbols: extern "C" fn(common::VoidPtr, usize, usize, usize) -> ResultIntervalSymbols,
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
@@ -363,7 +407,8 @@ impl Interface {
             get: builder.get("get_element")?,
             rank: builder.get("rank")?,
             inverse_select: builder.get("inverse_select")?,
-
+            select: builder.get("select")?,
+            // interval_symbols: builder.get("interval_symbols")?,
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),
         })

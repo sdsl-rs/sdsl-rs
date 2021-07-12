@@ -63,7 +63,7 @@ pub fn analyse(code_meta: &CodeMeta) -> Result<Vec<specification::Specification>
     log::debug!("Analyzing code metadata.");
     let mut interface_specs = Vec::<_>::new();
 
-    for meta in meta::get_all()? {
+    for meta in meta::get_metas()? {
         log::debug!("Identifying instances: {}", meta.path());
 
         if let Some(spec) = default_specification(&code_meta, &meta)? {
@@ -83,8 +83,7 @@ fn default_specification(
     if let Some(regex) = meta.default_regex()? {
         let capture_matches: Vec<_> = regex.captures_iter(&code_meta.mir).collect();
         if !capture_matches.is_empty() {
-            return Ok(Some(specification::Specification::new(
-                &Vec::<_>::new(),
+            return Ok(Some(specification::Specification::from_default_meta(
                 &meta,
             )?));
         }
@@ -106,8 +105,9 @@ fn parameterized_specifications(
     for regex in regexes {
         let capture_matches: Vec<_> = regex.captures_iter(&code_meta.mir).collect();
         for captures in capture_matches {
-            let parameter_values = parameter_values(&captures, &meta)?;
-            let spec = specification::Specification::new(&parameter_values, &meta)?;
+            let parameter_specs = parameter_specifications(&captures, &meta)?;
+            let spec =
+                specification::Specification::from_parameterized_meta(&parameter_specs, &meta)?;
             specs.push(spec);
         }
     }
@@ -115,33 +115,35 @@ fn parameterized_specifications(
     Ok(specs)
 }
 
-fn parameter_values(
+fn parameter_specifications(
     captures: &regex::Captures,
     meta: &Box<dyn meta::common::Meta>,
-) -> Result<Vec<String>> {
-    let mut values = Vec::<_>::new();
+) -> Result<Vec<specification::Specification>> {
+    let mut specs = Vec::<_>::new();
     for (index, parameter) in meta.parameters().iter().enumerate() {
         let capture_group_name = meta::common::params::get_capture_group_name(index);
-        let mut value = captures
+        let value = captures
             .name(&capture_group_name)
             .map_or("", |m| m.as_str())
             .to_string();
-        if parameter.is_sdsl_type {
-            let spec = handle_sdsl_type(&value)?;
-            value = spec.c_code.clone();
-        }
 
-        values.push(value);
+        let spec = if parameter.is_sdsl_type {
+            handle_sdsl_type(&value)?
+        } else {
+            let meta =
+                Box::new(meta::common::GenericMeta::new(&value)) as Box<dyn meta::common::Meta>;
+            specification::Specification::from_default_meta(&meta)?
+        };
+        specs.push(spec);
     }
-    Ok(values)
+    Ok(specs)
 }
 
 fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specification> {
-    let prefix = " ";
     let specification = analyse(&CodeMeta {
         mir: format!(
             "{prefix}{parameter};",
-            prefix = prefix,
+            prefix = " ",
             parameter = parameter_value.to_string()
         ),
     })?
@@ -152,4 +154,13 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
         parameter_value
     ))?;
     Ok(specification)
+}
+
+#[test]
+fn foo() -> Result<()> {
+    let x = analyse(&CodeMeta {
+        mir: "        let _44: sdsl::wavelet_trees::WtHuff; ".to_string(),
+    })?;
+    println!("{:#?}", x);
+    Ok(())
 }
