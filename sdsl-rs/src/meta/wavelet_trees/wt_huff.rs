@@ -2,6 +2,9 @@ use crate::interface::common::ParametersCCode;
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::{format_err, Result};
 
+type DefaultInterfaceType<'a> =
+    crate::interface::wavelet_trees::wt_huff::WtHuff<'a, crate::interface::bit_vector::BitVector>;
+
 pub struct WtHuffMeta {
     parameters: Vec<Box<dyn common::Meta>>,
 }
@@ -182,9 +185,7 @@ impl common::Parameters for WtHuffMeta {
     }
 
     fn default_parameters_c_code(&self) -> Result<Vec<String>> {
-        crate::interface::wavelet_trees::wt_huff::WtHuff::<
-            crate::interface::bit_vector::BitVector,
-        >::parameters_c_code()
+        DefaultInterfaceType::parameters_c_code()
     }
 
     fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {

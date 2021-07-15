@@ -2,6 +2,10 @@ use crate::interface::common::ParametersCCode;
 use crate::meta::common;
 use anyhow::{format_err, Result};
 
+type DefaultInterfaceType = crate::interface::wavelet_trees::layouts::byte_tree::ByteTree<
+    crate::interface::wavelet_trees::layouts::common::BreadthFirstSearch,
+>;
+
 pub struct ByteTreeMeta {
     parameters: Vec<Box<dyn common::Meta>>,
 }
@@ -73,9 +77,7 @@ impl common::Parameters for ByteTreeMeta {
     }
 
     fn default_parameters_c_code(&self) -> Result<Vec<String>> {
-        crate::interface::wavelet_trees::layouts::byte_tree::ByteTree::<
-            crate::interface::wavelet_trees::layouts::common::BreadthFirstSearch,
-        >::parameters_c_code()
+        DefaultInterfaceType::parameters_c_code()
     }
 
     fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
