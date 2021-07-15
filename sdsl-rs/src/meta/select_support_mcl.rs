@@ -2,16 +2,20 @@ use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
 pub struct SelectSupportMclMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl SelectSupportMclMeta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 
-    pub fn new_parameterized(parameters: Vec<Box<dyn common::Meta>>) -> Self {
-        Self { parameters }
+    pub fn new_parameterized(parameters_default_meta: Vec<Box<dyn common::Meta>>) -> Self {
+        Self {
+            parameters_default_meta,
+        }
     }
 }
 
@@ -102,7 +106,7 @@ impl common::Path for SelectSupportMclMeta {
 
 impl common::Code for SelectSupportMclMeta {
     fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
-        let parameters = self.parameters();
+        let parameters = self.parameters_definitions();
         let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
         Ok(format!(
             "sdsl::select_support_mcl<{}>",
@@ -112,15 +116,15 @@ impl common::Code for SelectSupportMclMeta {
 }
 
 impl common::Parameters for SelectSupportMclMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![common::params::Parameter::sdsl(0, false, 0)]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

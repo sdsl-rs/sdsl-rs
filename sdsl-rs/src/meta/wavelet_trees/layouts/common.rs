@@ -4,12 +4,14 @@ use anyhow::Result;
 // TODO: Depth first search.
 
 pub struct BreadthFirstSearchMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl BreadthFirstSearchMeta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -37,15 +39,15 @@ impl common::Code for BreadthFirstSearchMeta {
 }
 
 impl common::Parameters for BreadthFirstSearchMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

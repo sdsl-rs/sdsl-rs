@@ -2,12 +2,14 @@ use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
 pub struct RrrVectorMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl RrrVectorMeta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -79,7 +81,7 @@ fn get_header_replacements(
 ) -> Result<std::collections::BTreeMap<String, String>> {
     let mut replacements = maplit::btreemap! {};
 
-    let parameters = meta.parameters();
+    let parameters = meta.parameters_definitions();
     let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
     replacements.insert(
         "#define RRR_VECTOR_TEMPLATE 63, sdsl::int_vector<>, 32".to_string(),
@@ -105,7 +107,7 @@ impl common::Path for RrrVectorMeta {
 
 impl common::Code for RrrVectorMeta {
     fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
-        let parameters = self.parameters();
+        let parameters = self.parameters_definitions();
         let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
         Ok(format!(
             "sdsl::rrr_vector<{}>",
@@ -115,7 +117,7 @@ impl common::Code for RrrVectorMeta {
 }
 
 impl common::Parameters for RrrVectorMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![
             common::params::Parameter::sdsl(0, false, 1),
             common::params::Parameter::integer(1, false, 0),
@@ -123,11 +125,11 @@ impl common::Parameters for RrrVectorMeta {
         ]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

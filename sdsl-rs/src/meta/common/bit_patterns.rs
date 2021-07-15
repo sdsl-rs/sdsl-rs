@@ -2,12 +2,14 @@ use crate::meta::common;
 use anyhow::Result;
 
 pub struct P0Meta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl P0Meta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -35,26 +37,28 @@ impl common::Code for P0Meta {
 }
 
 impl common::Parameters for P0Meta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }
 
 pub struct P1Meta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl P1Meta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -82,26 +86,28 @@ impl common::Code for P1Meta {
 }
 
 impl common::Parameters for P1Meta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }
 
 pub struct P10Meta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl P10Meta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -129,26 +135,28 @@ impl common::Code for P10Meta {
 }
 
 impl common::Parameters for P10Meta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }
 
 pub struct P01Meta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl P01Meta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -176,15 +184,15 @@ impl common::Code for P01Meta {
 }
 
 impl common::Parameters for P01Meta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

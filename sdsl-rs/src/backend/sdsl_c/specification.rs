@@ -33,10 +33,10 @@ impl Specification {
 
     /// Create a specification from a meta and its default parameter values.
     pub fn from_default_meta(meta: &Box<dyn meta::common::Meta>) -> Result<Self> {
-        let parameters_c_code = meta.default_parameters_c_code()?;
+        let parameters_c_code = meta.parameters_default_c_code()?;
         let mut parameters_file_specs = vec![];
-        for parameter_meta in meta.parameters_meta() {
-            parameters_file_specs.push(Self::from_default_meta(&parameter_meta)?.files);
+        for parameter_default_meta in meta.parameters_default_meta() {
+            parameters_file_specs.push(Self::from_default_meta(&parameter_default_meta)?.files);
         }
         let id = get_id(&meta.c_code(&parameters_c_code)?)?;
 

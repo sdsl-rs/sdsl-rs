@@ -120,7 +120,7 @@ fn parameter_specifications(
     meta: &Box<dyn meta::common::Meta>,
 ) -> Result<Vec<specification::Specification>> {
     let mut specs = Vec::<_>::new();
-    for (index, parameter) in meta.parameters().iter().enumerate() {
+    for (index, parameter) in meta.parameters_definitions().iter().enumerate() {
         let capture_group_name = meta::common::params::get_capture_group_name(index);
         let value = captures
             .name(&capture_group_name)

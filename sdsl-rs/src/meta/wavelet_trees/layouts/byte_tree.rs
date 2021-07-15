@@ -7,20 +7,22 @@ type DefaultInterfaceType = crate::interface::wavelet_trees::layouts::byte_tree:
 >;
 
 pub struct ByteTreeMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl ByteTreeMeta {
     pub fn new() -> Self {
         Self {
-            parameters: vec![Box::new(
+            parameters_default_meta: vec![Box::new(
                 crate::meta::wavelet_trees::layouts::common::BreadthFirstSearchMeta::new(),
             ) as Box<dyn common::Meta>],
         }
     }
 
-    pub fn new_parameterized(parameters: Vec<Box<dyn common::Meta>>) -> Self {
-        Self { parameters }
+    pub fn new_parameterized(parameters_default_meta: Vec<Box<dyn common::Meta>>) -> Self {
+        Self {
+            parameters_default_meta,
+        }
     }
 }
 
@@ -72,15 +74,15 @@ impl common::Code for ByteTreeMeta {
 }
 
 impl common::Parameters for ByteTreeMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![common::params::Parameter::sdsl(0, true, 0)]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         DefaultInterfaceType::parameters_c_code()
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

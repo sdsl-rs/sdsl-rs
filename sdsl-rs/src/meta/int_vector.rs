@@ -2,12 +2,14 @@ use crate::meta::common::{self, Code, Parameters};
 use anyhow::Result;
 
 pub struct IntVectorMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl IntVectorMeta {
     pub fn new() -> Self {
-        Self { parameters: vec![] }
+        Self {
+            parameters_default_meta: vec![],
+        }
     }
 }
 
@@ -98,7 +100,7 @@ impl common::Path for IntVectorMeta {
 
 impl common::Code for IntVectorMeta {
     fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
-        let parameters = self.parameters();
+        let parameters = self.parameters_definitions();
         let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
         Ok(format!(
             "sdsl::int_vector<{}>",
@@ -108,15 +110,15 @@ impl common::Code for IntVectorMeta {
 }
 
 impl common::Parameters for IntVectorMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![common::params::Parameter::integer(0, false, 0)]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }

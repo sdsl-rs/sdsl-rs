@@ -37,9 +37,9 @@ pub trait Code: Parameters {
 }
 
 pub trait Parameters {
-    fn parameters(&self) -> Vec<params::Parameter>;
-    fn default_parameters_c_code(&self) -> Result<Vec<String>>;
-    fn parameters_meta(&self) -> &Vec<Box<dyn Meta>>;
+    fn parameters_definitions(&self) -> Vec<params::Parameter>;
+    fn parameters_default_c_code(&self) -> Result<Vec<String>>;
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn Meta>>;
 }
 
 static PATH_PREFIX_REGEX: &str = r"([ &]|(&mut ))";
@@ -54,7 +54,7 @@ impl<T: Path + Parameters> Regex for T {
     ///
     /// Returns None if structure does not include generic parameters.
     fn parameters_regex(&self) -> Result<Option<Vec<regex::Regex>>> {
-        let parameters = self.parameters();
+        let parameters = self.parameters_definitions();
         if parameters.is_empty() {
             return Ok(None);
         }
@@ -93,7 +93,7 @@ impl<T: Path + Parameters> Regex for T {
     fn default_regex(&self) -> Result<Option<regex::Regex>> {
         // The resultant regex will not capture anything unless
         // all parameters have default values.
-        if !self.parameters().iter().all(|p| p.has_default) {
+        if !self.parameters_definitions().iter().all(|p| p.has_default) {
             return Ok(None);
         }
 
@@ -183,15 +183,15 @@ impl Code for GenericMeta {
 }
 
 impl Parameters for GenericMeta {
-    fn parameters(&self) -> Vec<params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<params::Parameter> {
         vec![]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         Ok(vec![])
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn Meta>> {
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn Meta>> {
         &self.parameters
     }
 }

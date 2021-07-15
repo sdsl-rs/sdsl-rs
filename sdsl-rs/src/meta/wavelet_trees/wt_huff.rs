@@ -6,13 +6,13 @@ type DefaultInterfaceType<'a> =
     crate::interface::wavelet_trees::wt_huff::WtHuff<'a, crate::interface::bit_vector::BitVector>;
 
 pub struct WtHuffMeta {
-    parameters: Vec<Box<dyn common::Meta>>,
+    parameters_default_meta: Vec<Box<dyn common::Meta>>,
 }
 
 impl WtHuffMeta {
     pub fn new() -> Self {
         Self {
-            parameters: vec![
+            parameters_default_meta: vec![
                 Box::new(crate::meta::bit_vector::BitVectorMeta::new()) as Box<dyn common::Meta>,
                 Box::new(
                     crate::meta::rank_support_v::RankSupportVMeta::new_parameterized(vec![Box::new(
@@ -127,7 +127,7 @@ fn get_header_replacements(
 ) -> Result<std::collections::BTreeMap<String, String>> {
     let mut replacements = maplit::btreemap! {};
 
-    let parameters = meta.parameters();
+    let parameters = meta.parameters_definitions();
     let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
     replacements.insert(
         "#define WT_HUFF_TEMPLATE sdsl::bit_vector, sdsl::bit_vector::rank_1_type, sdsl::bit_vector::select_1_type, sdsl::bit_vector::select_0_type, sdsl::byte_tree<>".to_string(),
@@ -167,14 +167,14 @@ impl common::Path for WtHuffMeta {
 
 impl common::Code for WtHuffMeta {
     fn c_code(&self, parameters_c_code: &Vec<String>) -> Result<String> {
-        let parameters = self.parameters();
+        let parameters = self.parameters_definitions();
         let parameters_c_code = common::c_sorted_parameters(&parameters_c_code, &parameters)?;
         Ok(format!("sdsl::wt_huff<{}>", parameters_c_code.join(", ")))
     }
 }
 
 impl common::Parameters for WtHuffMeta {
-    fn parameters(&self) -> Vec<common::params::Parameter> {
+    fn parameters_definitions(&self) -> Vec<common::params::Parameter> {
         vec![
             common::params::Parameter::sdsl(0, true, 0),
             common::params::Parameter::sdsl(1, true, 1),
@@ -184,11 +184,11 @@ impl common::Parameters for WtHuffMeta {
         ]
     }
 
-    fn default_parameters_c_code(&self) -> Result<Vec<String>> {
+    fn parameters_default_c_code(&self) -> Result<Vec<String>> {
         DefaultInterfaceType::parameters_c_code()
     }
 
-    fn parameters_meta(&self) -> &Vec<Box<dyn common::Meta>> {
-        &self.parameters
+    fn parameters_default_meta(&self) -> &Vec<Box<dyn common::Meta>> {
+        &self.parameters_default_meta
     }
 }
