@@ -2,7 +2,7 @@ use crate::backend::sdsl_c;
 use crate::meta;
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParametersCCode, Ptr};
+use crate::interface::common::{self, Code, Id, Ptr};
 
 /// A rank structure proposed by Sebastiano Vigna.
 ///
@@ -135,11 +135,7 @@ impl<'a, BitPattern: common::bit_patterns::BitPattern> common::Code
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl<'a, BitPattern: common::bit_patterns::BitPattern> common::ParametersCCode
-    for RankSupportV<'a, BitPattern>
-{
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![BitPattern::c_code()?])
     }

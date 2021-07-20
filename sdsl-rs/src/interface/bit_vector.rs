@@ -2,7 +2,7 @@ use crate::backend::sdsl_c;
 use crate::meta;
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParametersCCode};
+use crate::interface::common::{self, Code, Id};
 
 /// A bit vector where each element is 1 bit.
 ///
@@ -178,9 +178,7 @@ impl common::Code for BitVector {
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl common::ParametersCCode for BitVector {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }

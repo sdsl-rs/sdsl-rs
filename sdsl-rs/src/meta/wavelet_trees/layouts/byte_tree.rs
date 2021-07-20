@@ -1,4 +1,4 @@
-use crate::interface::common::ParametersCCode;
+use crate::interface::common::Code;
 use crate::meta::common;
 use anyhow::{format_err, Result};
 

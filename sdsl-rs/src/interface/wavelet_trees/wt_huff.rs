@@ -2,7 +2,7 @@ use crate::meta;
 use crate::{backend::sdsl_c, interface::common::Ptr};
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParametersCCode};
+use crate::interface::common::{self, Code, Id};
 use crate::interface::wavelet_trees::layouts;
 
 /// A Huffman-shaped wavelet tree.
@@ -310,18 +310,7 @@ where
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
-    common::ParametersCCode
-    for WtHuff<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
-where
-    BitVector: common::Code,
-    RankSupport1: common::Code,
-    SelectSupport1: common::Code,
-    SelectSupport0: common::Code,
-    TreeStrategy: layouts::common::TreeStrategy + common::Code,
-{
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![
             BitVector::c_code()?,

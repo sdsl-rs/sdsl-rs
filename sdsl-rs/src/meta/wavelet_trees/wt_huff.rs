@@ -1,4 +1,3 @@
-use crate::interface::common::ParametersCCode;
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::{format_err, Result};
 
@@ -185,6 +184,7 @@ impl common::Parameters for WtHuffMeta {
     }
 
     fn parameters_default_c_code(&self) -> Result<Vec<String>> {
+        use crate::interface::common::Code;
         DefaultInterfaceType::parameters_c_code()
     }
 

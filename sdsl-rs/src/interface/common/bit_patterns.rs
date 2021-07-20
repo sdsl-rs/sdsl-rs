@@ -1,4 +1,3 @@
-use crate::interface::common::ParametersCCode;
 use crate::meta;
 use anyhow::Result;
 
@@ -33,9 +32,7 @@ impl super::Code for P0 {
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl super::ParametersCCode for P0 {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
@@ -65,9 +62,7 @@ impl super::Code for P1 {
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl super::ParametersCCode for P1 {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
@@ -97,9 +92,7 @@ impl super::Code for P10 {
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl super::ParametersCCode for P10 {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }
@@ -130,9 +123,7 @@ impl super::Code for P01 {
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl super::ParametersCCode for P01 {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![])
     }

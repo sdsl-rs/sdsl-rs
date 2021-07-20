@@ -9,16 +9,12 @@ pub trait Ptr {
     fn ptr(&self) -> &VoidPtr;
 }
 
-pub trait Id: ParametersCCode {
+pub trait Id: Code {
     fn id() -> Result<String>;
 }
 
-pub trait Code: ParametersCCode {
+pub trait Code {
     fn c_code() -> Result<String>;
-}
-
-// TODO: Merge with Code trait.
-pub trait ParametersCCode {
     fn parameters_c_code() -> Result<Vec<String>>;
 }
 

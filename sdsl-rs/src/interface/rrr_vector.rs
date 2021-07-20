@@ -2,7 +2,7 @@ use crate::meta;
 use crate::{backend::sdsl_c, interface::common::Ptr};
 use anyhow::{format_err, Result};
 
-use crate::interface::common::{self, Id, ParametersCCode};
+use crate::interface::common::{self, Code, Id};
 
 /// $ H_0 $-compressed bit vector representation.
 ///
@@ -174,13 +174,7 @@ where
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }
-}
 
-impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::ParametersCCode
-    for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
-where
-    BlockStore: common::Code,
-{
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![
             BlockStore::c_code()?,
