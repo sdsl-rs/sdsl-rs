@@ -3,6 +3,7 @@ use anyhow::Result;
 
 pub trait TreeStrategy {
     type Value: Clone + std::fmt::Debug;
+    const LEX_ORDERED: bool;
 }
 
 /// Layout of the tree structure in memory.

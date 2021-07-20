@@ -23,4 +23,5 @@ impl<Layout: common::MemoryLayout> Code for ByteTree<Layout> {
 
 impl<Layout: common::MemoryLayout> common::TreeStrategy for ByteTree<Layout> {
     type Value = u8;
+    const LEX_ORDERED: bool = false;
 }

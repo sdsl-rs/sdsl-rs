@@ -223,10 +223,38 @@ where
         }
     }
 
+    /// Returns a count of symbols which are lexicographic smaller/greater than `symbol` in [i..j-1].
+    ///
+    /// This method is only available for lex ordered tree strategies.
+    ///
+    /// # Arguments
+    /// * `start_index` - The start index (inclusive) of the interval.
+    /// * `end_index` - The end index (exclusive) of the interval.
+    /// * `symbol` - Symbol.
+    pub fn lex_count(
+        &self,
+        start_index: usize,
+        end_index: usize,
+        symbol: TreeStrategy::Value,
+    ) -> LexCount {
+        assert!(
+            TreeStrategy::LEX_ORDERED,
+            "TreeStrategy is not lex ordered."
+        );
+        (self.interface.lex_count)(self.ptr, start_index, end_index, symbol)
+    }
+
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
     }
+}
+
+#[repr(C)]
+pub struct LexCount {
+    pub rank: usize,
+    pub count_smaller_symbols: usize,
+    pub count_greater_symbols: usize,
 }
 
 pub struct IntervalSymbols<'a, ValueType> {
@@ -400,6 +428,7 @@ struct Interface<Value> {
     select: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
     interval_symbols: extern "C" fn(common::VoidPtr, usize, usize) -> ResultIntervalSymbols<Value>,
     free_result_interval_symbols: extern "C" fn(*const Value, *const u64, *const u64),
+    lex_count: extern "C" fn(common::VoidPtr, usize, usize, Value) -> LexCount,
 
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
@@ -427,6 +456,7 @@ impl<Value> Interface<Value> {
             select: builder.get("select")?,
             interval_symbols: builder.get("interval_symbols")?,
             free_result_interval_symbols: builder.get("free_result_interval_symbols")?,
+            lex_count: builder.get("lex_count")?,
 
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),
