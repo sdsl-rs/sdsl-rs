@@ -17,7 +17,7 @@ impl<Layout: common::MemoryLayout> Code for ByteTree<Layout> {
     }
 
     fn parameters_c_code() -> Result<Vec<String>> {
-        Ok(vec![Layout::flag().to_string()])
+        Ok(vec![Layout::c_code()?])
     }
 }
 
