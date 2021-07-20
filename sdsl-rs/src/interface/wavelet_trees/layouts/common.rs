@@ -1,3 +1,7 @@
+pub trait TreeStrategy {
+    type Value: Clone + std::fmt::Debug;
+}
+
 /// Layout of the tree structure in memory.
 pub trait MemoryLayout {
     fn flag() -> bool;

@@ -3,6 +3,7 @@ use crate::{backend::sdsl_c, interface::common::Ptr};
 use anyhow::{format_err, Result};
 
 use crate::interface::common::{self, Id, ParametersCCode};
+use crate::interface::wavelet_trees::layouts;
 
 /// A Huffman-shaped wavelet tree.
 ///
@@ -56,13 +57,13 @@ pub struct WtHuff<
     RankSupport1 = crate::rank_supports::RankSupportV<'a, crate::bit_patterns::P1>,
     SelectSupport1 = crate::select_supports::SelectSupportMcl<'a, crate::bit_patterns::P1>,
     SelectSupport0 = crate::select_supports::SelectSupportMcl<'a, crate::bit_patterns::P0>,
-    TreeStrategy = crate::interface::wavelet_trees::layouts::byte_tree::ByteTree,
+    TreeStrategy = layouts::byte_tree::ByteTree,
 > where
     BitVector: common::Code,
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     // Dummy fields which are never used, always None. Included so that generic parameters are used.
     _bs: Option<BitVector>,
@@ -72,7 +73,7 @@ pub struct WtHuff<
     _ts: Option<TreeStrategy>,
 
     ptr: common::VoidPtr,
-    interface: Interface,
+    interface: Interface<TreeStrategy::Value>,
 }
 
 impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
@@ -82,7 +83,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code + 'a,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code + 'a,
 {
     /// Construct a Huffman-shaped wavelet tree from file.
     /// # Arguments
@@ -136,7 +137,7 @@ where
         Ok(wt)
     }
 
-    fn new(interface: Interface, ptr: common::VoidPtr) -> Result<Self> {
+    fn new(interface: Interface<TreeStrategy::Value>, ptr: common::VoidPtr) -> Result<Self> {
         Ok(Self {
             _bs: None,
             _rs1: &None,
@@ -197,29 +198,54 @@ where
         (self.interface.select)(self.ptr, i, symbol)
     }
 
-    // /// For each symbol c in wt[i..j-1] get rank(i,c) and rank(j,c).
-    // ///
-    // /// The time complexity is $ \mathcal{O}(\min{\sigma, k \log \sigma}) $
-    // /// Precondition:
-    // ///
-    // /// # Arguments
-    // /// * `start_index` - The start index (inclusive) of the interval.
-    // /// * `end_index` - The end index (exclusive) of the interval.
-    // pub fn interval_symbols(&self, start_index: usize, end_index: usize, alphabet_size: usize) {
-    //     let result =
-    //         (self.interface.interval_symbols)(self.ptr, start_index, end_index, alphabet_size);
-    //     let cs = unsafe { std::slice::from_raw_parts(result.cs, result.length) };
-    //     let rank_c_i = unsafe { std::slice::from_raw_parts(result.rank_c_i, result.length) };
-    //     let rank_c_j = unsafe { std::slice::from_raw_parts(result.rank_c_j, result.length) };
+    /// For each symbol c in wt[i..j-1] get rank(i,c) and rank(j,c).
+    ///
+    /// The time complexity is $ \mathcal{O}(\min{\sigma, k \log \sigma}) $
+    /// Precondition:
+    ///
+    /// # Arguments
+    /// * `start_index` - The start index (inclusive) of the interval.
+    /// * `end_index` - The end index (exclusive) of the interval.
+    pub fn interval_symbols(
+        &self,
+        start_index: usize,
+        end_index: usize,
+    ) -> IntervalSymbols<TreeStrategy::Value> {
+        let result = (self.interface.interval_symbols)(self.ptr, start_index, end_index);
+        IntervalSymbols {
+            interval_alphabet_size: result.interval_alphabet_size,
+            interval_symbols: common::array_from_c_array(result.cs, result.length),
+            rank_symbols_lower: common::array_from_c_array(result.rank_c_i, result.length),
+            rank_symbols_upper: common::array_from_c_array(result.rank_c_j, result.length),
 
-    //     for i in cs {
-    //         println!("cs: {}", i);
-    //     }
-    // }
+            internal_results: result,
+            interface: self.interface.clone(),
+        }
+    }
 
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
+    }
+}
+
+pub struct IntervalSymbols<'a, ValueType> {
+    pub interval_alphabet_size: usize,
+    pub interval_symbols: &'a [ValueType],
+    pub rank_symbols_lower: &'a [u64],
+    pub rank_symbols_upper: &'a [u64],
+
+    internal_results: ResultIntervalSymbols<ValueType>,
+    interface: Interface<ValueType>,
+}
+
+impl<'a, ValueType> Drop for IntervalSymbols<'a, ValueType> {
+    fn drop(&mut self) {
+        (self.interface.free_result_interval_symbols)(
+            self.internal_results.cs,
+            self.internal_results.rank_c_i,
+            self.internal_results.rank_c_j,
+        )
     }
 }
 
@@ -230,7 +256,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn io(&self) -> &common::io::Interface {
         &self.interface.io
@@ -244,7 +270,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn ptr(&self) -> &common::VoidPtr {
         &self.ptr
@@ -258,7 +284,7 @@ where
     RankSupport1: common::Code + 'a,
     SelectSupport1: common::Code + 'a,
     SelectSupport0: common::Code + 'a,
-    TreeStrategy: common::Code + 'a,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code + 'a,
 {
     fn id() -> Result<String> {
         let meta = Box::new(meta::wavelet_trees::wt_huff::WtHuffMeta::new())
@@ -276,7 +302,7 @@ where
     RankSupport1: common::Code + 'a,
     SelectSupport1: common::Code + 'a,
     SelectSupport0: common::Code + 'a,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn c_code() -> Result<String> {
         let meta = Box::new(meta::wavelet_trees::wt_huff::WtHuffMeta::new())
@@ -294,7 +320,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn parameters_c_code() -> Result<Vec<String>> {
         Ok(vec![
@@ -314,7 +340,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn iter_get(&self, index: usize) -> usize {
         (self.interface.get)(self.ptr, index)
@@ -328,7 +354,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn drop(&mut self) {
         (self.interface.drop)(self.ptr)
@@ -342,7 +368,7 @@ where
     RankSupport1: common::Code,
     SelectSupport1: common::Code,
     SelectSupport0: common::Code,
-    TreeStrategy: common::Code,
+    TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
     fn clone(&self) -> Self {
         Self {
@@ -359,16 +385,16 @@ where
 }
 
 #[repr(C)]
-struct ResultIntervalSymbols {
+struct ResultIntervalSymbols<ValueType> {
     interval_alphabet_size: usize,
     length: usize,
-    cs: *const u8, // TODO: Type depends on tree strategy.
+    cs: *const ValueType,
     rank_c_i: *const u64,
     rank_c_j: *const u64,
 }
 
 #[derive(Clone)]
-struct Interface {
+struct Interface<Value> {
     create: extern "C" fn() -> common::VoidPtr,
     from_file: extern "C" fn(*const std::os::raw::c_char) -> common::VoidPtr,
     from_string: extern "C" fn(*const std::os::raw::c_char) -> common::VoidPtr,
@@ -383,12 +409,14 @@ struct Interface {
     rank: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
     inverse_select: extern "C" fn(common::VoidPtr, usize) -> common::Pair<usize, usize>,
     select: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
-    // interval_symbols: extern "C" fn(common::VoidPtr, usize, usize, usize) -> ResultIntervalSymbols,
+    interval_symbols: extern "C" fn(common::VoidPtr, usize, usize) -> ResultIntervalSymbols<Value>,
+    free_result_interval_symbols: extern "C" fn(*const Value, *const u64, *const u64),
+
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
 
-impl Interface {
+impl<Value> Interface<Value> {
     pub fn new(id: &str) -> Result<Self> {
         let lib = sdsl_c::LIB.clone();
         let builder = sdsl_c::FunctionBuilder::new(Some("wt_huff"), id, lib.clone());
@@ -408,7 +436,9 @@ impl Interface {
             rank: builder.get("rank")?,
             inverse_select: builder.get("inverse_select")?,
             select: builder.get("select")?,
-            // interval_symbols: builder.get("interval_symbols")?,
+            interval_symbols: builder.get("interval_symbols")?,
+            free_result_interval_symbols: builder.get("free_result_interval_symbols")?,
+
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),
         })

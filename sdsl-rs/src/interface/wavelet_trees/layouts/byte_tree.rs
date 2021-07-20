@@ -22,3 +22,7 @@ impl<Layout: common::MemoryLayout> ParametersCCode for ByteTree<Layout> {
         Ok(vec![Layout::flag().to_string()])
     }
 }
+
+impl<Layout: common::MemoryLayout> common::TreeStrategy for ByteTree<Layout> {
+    type Value = u8;
+}

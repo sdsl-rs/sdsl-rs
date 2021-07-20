@@ -97,3 +97,7 @@ impl<X, Y> From<Pair<X, Y>> for (X, Y) {
         (pair.x, pair.y)
     }
 }
+
+pub fn array_from_c_array<'a, T>(c_array_ptr: *const T, length: usize) -> &'a [T] {
+    unsafe { std::slice::from_raw_parts(c_array_ptr, length) }
+}
