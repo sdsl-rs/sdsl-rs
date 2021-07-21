@@ -73,7 +73,7 @@ pub struct WtHuff<
     _ts: Option<TreeStrategy>,
 
     ptr: common::VoidPtr,
-    interface: Interface<TreeStrategy::Value>,
+    interface: Interface<TreeStrategy::Value, TreeStrategy::Size>,
 }
 
 impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
@@ -137,7 +137,10 @@ where
         Ok(wt)
     }
 
-    fn new(interface: Interface<TreeStrategy::Value>, ptr: common::VoidPtr) -> Result<Self> {
+    fn new(
+        interface: Interface<TreeStrategy::Value, TreeStrategy::Size>,
+        ptr: common::VoidPtr,
+    ) -> Result<Self> {
         Ok(Self {
             _bs: None,
             _rs1: &None,
@@ -163,7 +166,7 @@ where
     /// Get the i-th element of the original vector that was used in constructing the wavelet tree.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
-    pub fn get(&self, index: usize) -> usize {
+    pub fn get(&self, index: usize) -> TreeStrategy::Value {
         (self.interface.get)(self.ptr, index)
     }
 
@@ -173,7 +176,11 @@ where
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
     /// * `symbol` - Symbol.
-    pub fn rank(&self, index: usize, symbol: usize) -> usize {
+    pub fn rank(
+        &self,
+        index: TreeStrategy::Size,
+        symbol: TreeStrategy::Value,
+    ) -> TreeStrategy::Size {
         (self.interface.rank)(self.ptr, index, symbol)
     }
 
@@ -182,7 +189,10 @@ where
     /// The time complexity is $ \mathcal{O}(H_0) $ on average, where $ H_0 $ is the zero order entropy of the sequence.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
-    pub fn inverse_select(&self, index: usize) -> (usize, usize) {
+    pub fn inverse_select(
+        &self,
+        index: TreeStrategy::Size,
+    ) -> (TreeStrategy::Size, TreeStrategy::Size) {
         let (rank, symbol) = (self.interface.inverse_select)(self.ptr, index).into();
         (symbol, rank)
     }
@@ -194,7 +204,7 @@ where
     /// # Arguments
     /// * `i` - i-th symbol occurrence.
     /// * `symbol` - Symbol.
-    pub fn select(&self, i: usize, symbol: usize) -> usize {
+    pub fn select(&self, i: TreeStrategy::Size, symbol: TreeStrategy::Value) -> TreeStrategy::Size {
         (self.interface.select)(self.ptr, i, symbol)
     }
 
@@ -208,15 +218,15 @@ where
     /// * `end_index` - The end index (exclusive) of the interval.
     pub fn interval_symbols(
         &self,
-        start_index: usize,
-        end_index: usize,
-    ) -> IntervalSymbols<TreeStrategy::Value> {
+        start_index: TreeStrategy::Size,
+        end_index: TreeStrategy::Size,
+    ) -> IntervalSymbols<TreeStrategy::Value, TreeStrategy::Size> {
         let result = (self.interface.interval_symbols)(self.ptr, start_index, end_index);
         IntervalSymbols {
             interval_alphabet_size: result.interval_alphabet_size,
-            interval_symbols: common::array_from_c_array(result.cs, result.length),
-            rank_symbols_lower: common::array_from_c_array(result.rank_c_i, result.length),
-            rank_symbols_upper: common::array_from_c_array(result.rank_c_j, result.length),
+            interval_symbols: common::array_from_c_array(result.cs, result.length.into()),
+            rank_symbols_lower: common::array_from_c_array(result.rank_c_i, result.length.into()),
+            rank_symbols_upper: common::array_from_c_array(result.rank_c_j, result.length.into()),
 
             internal_results: result,
             interface: self.interface.clone(),
@@ -233,8 +243,8 @@ where
     /// * `symbol` - Symbol.
     pub fn lex_count(
         &self,
-        start_index: usize,
-        end_index: usize,
+        start_index: TreeStrategy::Size,
+        end_index: TreeStrategy::Size,
         symbol: TreeStrategy::Value,
     ) -> LexCount {
         assert!(
@@ -251,7 +261,11 @@ where
     /// # Arguments
     /// * `index` - Exclusive right bound of the range.
     /// * `symbol` - Symbol.
-    pub fn lex_smaller_count(&self, index: usize, symbol: TreeStrategy::Value) -> LexSmallerCount {
+    pub fn lex_smaller_count(
+        &self,
+        index: TreeStrategy::Size,
+        symbol: TreeStrategy::Value,
+    ) -> LexSmallerCount {
         assert!(
             TreeStrategy::LEX_ORDERED,
             "TreeStrategy is not lex ordered."
@@ -288,12 +302,12 @@ where
     }
 
     /// Returns a count of the number of different symbols in the wavelet tree.
-    pub fn alphabet_size(&self) -> usize {
+    pub fn alphabet_size(&self) -> TreeStrategy::Size {
         (self.interface.alphabet_size)(self.ptr)
     }
 
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
-    pub fn iter(&self) -> common::VectorIterator<Self> {
+    pub fn iter(&self) -> common::VectorIterator<TreeStrategy::Value, Self> {
         common::VectorIterator::new(&self, self.len())
     }
 }
@@ -371,7 +385,8 @@ where
     }
 }
 
-impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy> common::IterGet
+impl<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
+    common::IterGet<TreeStrategy::Value>
     for WtHuff<'a, BitVector, RankSupport1, SelectSupport1, SelectSupport0, TreeStrategy>
 where
     BitVector: common::Code,
@@ -380,7 +395,7 @@ where
     SelectSupport0: common::Code,
     TreeStrategy: layouts::common::TreeStrategy + common::Code,
 {
-    fn iter_get(&self, index: usize) -> usize {
+    fn iter_get(&self, index: usize) -> TreeStrategy::Value {
         (self.interface.get)(self.ptr, index)
     }
 }
@@ -423,15 +438,15 @@ where
 }
 
 #[repr(C)]
-struct SymbolGte<ValueType> {
+struct SymbolGte<Value> {
     pub found: bool,
-    pub symbol: ValueType,
+    pub symbol: Value,
 }
 
 #[repr(C)]
-struct SymbolLte<ValueType> {
+struct SymbolLte<Value> {
     pub found: bool,
-    pub symbol: ValueType,
+    pub symbol: Value,
 }
 
 #[repr(C)]
@@ -447,17 +462,17 @@ pub struct LexSmallerCount {
     pub count_smaller_symbols: usize,
 }
 
-pub struct IntervalSymbols<'a, ValueType> {
-    pub interval_alphabet_size: usize,
-    pub interval_symbols: &'a [ValueType],
+pub struct IntervalSymbols<'a, Value, Size> {
+    pub interval_alphabet_size: Size,
+    pub interval_symbols: &'a [Value],
     pub rank_symbols_lower: &'a [u64],
     pub rank_symbols_upper: &'a [u64],
 
-    internal_results: ResultIntervalSymbols<ValueType>,
-    interface: Interface<ValueType>,
+    internal_results: ResultIntervalSymbols<Value, Size>,
+    interface: Interface<Value, Size>,
 }
 
-impl<'a, ValueType> Drop for IntervalSymbols<'a, ValueType> {
+impl<'a, Value, Size> Drop for IntervalSymbols<'a, Value, Size> {
     fn drop(&mut self) {
         (self.interface.free_result_interval_symbols)(
             self.internal_results.cs,
@@ -468,16 +483,16 @@ impl<'a, ValueType> Drop for IntervalSymbols<'a, ValueType> {
 }
 
 #[repr(C)]
-struct ResultIntervalSymbols<ValueType> {
-    interval_alphabet_size: usize,
-    length: usize,
-    cs: *const ValueType,
+struct ResultIntervalSymbols<Value, Size> {
+    interval_alphabet_size: Size,
+    length: Size,
+    cs: *const Value,
     rank_c_i: *const u64,
     rank_c_j: *const u64,
 }
 
 #[derive(Clone)]
-struct Interface<Value> {
+struct Interface<Value, Size> {
     create: extern "C" fn() -> common::VoidPtr,
     from_file: extern "C" fn(*const std::os::raw::c_char) -> common::VoidPtr,
     from_string: extern "C" fn(*const std::os::raw::c_char) -> common::VoidPtr,
@@ -488,23 +503,24 @@ struct Interface<Value> {
 
     len: extern "C" fn(common::VoidPtr) -> usize,
     is_empty: extern "C" fn(common::VoidPtr) -> bool,
-    get: extern "C" fn(common::VoidPtr, usize) -> usize,
-    rank: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
-    inverse_select: extern "C" fn(common::VoidPtr, usize) -> common::Pair<usize, usize>,
-    select: extern "C" fn(common::VoidPtr, usize, usize) -> usize,
-    interval_symbols: extern "C" fn(common::VoidPtr, usize, usize) -> ResultIntervalSymbols<Value>,
+    get: extern "C" fn(common::VoidPtr, usize) -> Value,
+    rank: extern "C" fn(common::VoidPtr, Size, Value) -> Size,
+    inverse_select: extern "C" fn(common::VoidPtr, Size) -> common::Pair<Size, Size>,
+    select: extern "C" fn(common::VoidPtr, Size, Value) -> Size,
+    interval_symbols:
+        extern "C" fn(common::VoidPtr, Size, Size) -> ResultIntervalSymbols<Value, Size>,
     free_result_interval_symbols: extern "C" fn(*const Value, *const u64, *const u64),
-    lex_count: extern "C" fn(common::VoidPtr, usize, usize, Value) -> LexCount,
-    lex_smaller_count: extern "C" fn(common::VoidPtr, usize, Value) -> LexSmallerCount,
+    lex_count: extern "C" fn(common::VoidPtr, Size, Size, Value) -> LexCount,
+    lex_smaller_count: extern "C" fn(common::VoidPtr, Size, Value) -> LexSmallerCount,
     symbol_gte: extern "C" fn(common::VoidPtr, Value) -> SymbolGte<Value>,
     symbol_lte: extern "C" fn(common::VoidPtr, Value) -> SymbolLte<Value>,
-    alphabet_size: extern "C" fn(common::VoidPtr) -> usize,
+    alphabet_size: extern "C" fn(common::VoidPtr) -> Size,
 
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
 }
 
-impl<Value> Interface<Value> {
+impl<Value, Size> Interface<Value, Size> {
     pub fn new(id: &str) -> Result<Self> {
         let lib = sdsl_c::LIB.clone();
         let builder = sdsl_c::FunctionBuilder::new(Some("wt_huff"), id, lib.clone());

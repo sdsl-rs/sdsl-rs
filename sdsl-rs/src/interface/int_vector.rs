@@ -154,7 +154,7 @@ impl<const WIDTH: u8> IntVector<WIDTH> {
     }
 
     /// Returns an iterator over the vector values.
-    pub fn iter(&self) -> common::VectorIterator<Self> {
+    pub fn iter(&self) -> common::VectorIterator<usize, Self> {
         common::VectorIterator::new(&self, self.len())
     }
 }
@@ -198,7 +198,7 @@ impl<'a, const WIDTH: u8> common::Code for IntVector<WIDTH> {
     }
 }
 
-impl<const WIDTH: u8> common::IterGet for IntVector<WIDTH> {
+impl<const WIDTH: u8> common::IterGet<usize> for IntVector<WIDTH> {
     fn iter_get(&self, index: usize) -> usize {
         (self.interface.get)(self.ptr, index)
     }
@@ -227,7 +227,7 @@ impl<const WIDTH: u8> std::fmt::Debug for IntVector<WIDTH> {
 
 impl<const WIDTH: u8> IntoIterator for IntVector<WIDTH> {
     type Item = usize;
-    type IntoIter = common::VectorIntoIterator<IntVector<WIDTH>>;
+    type IntoIter = common::VectorIntoIterator<usize, IntVector<WIDTH>>;
 
     fn into_iter(self) -> Self::IntoIter {
         let len = self.len();

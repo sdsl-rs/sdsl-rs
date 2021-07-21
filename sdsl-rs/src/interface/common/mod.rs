@@ -18,19 +18,21 @@ pub trait Code {
     fn parameters_c_code() -> Result<Vec<String>>;
 }
 
-pub trait IterGet {
-    fn iter_get(&self, index: usize) -> usize;
+pub trait IterGet<Value> {
+    fn iter_get(&self, index: usize) -> Value;
 }
 
-pub struct VectorIterator<'a, T: IterGet> {
-    vector: &'a T,
+pub struct VectorIterator<'a, Value, Iterable: IterGet<Value>> {
+    _t: Option<Value>,
+    vector: &'a Iterable,
     len: usize,
     index: usize,
 }
 
-impl<'a, T: IterGet> VectorIterator<'a, T> {
-    pub fn new(vector: &'a T, len: usize) -> Self {
+impl<'a, Value, Iterable: IterGet<Value>> VectorIterator<'a, Value, Iterable> {
+    pub fn new(vector: &'a Iterable, len: usize) -> Self {
         Self {
+            _t: None,
             vector,
             len,
             index: 0,
@@ -38,29 +40,31 @@ impl<'a, T: IterGet> VectorIterator<'a, T> {
     }
 }
 
-impl<'a, T: IterGet> Iterator for VectorIterator<'a, T> {
-    type Item = usize;
+impl<'a, Value, Iterable: IterGet<Value>> Iterator for VectorIterator<'a, Value, Iterable> {
+    type Item = Value;
 
-    fn next(&mut self) -> Option<usize> {
+    fn next(&mut self) -> Option<Value> {
         let result = if self.index < self.len {
             Some(self.vector.iter_get(self.index))
         } else {
             None
         };
-        self.index += 1;
+        self.index = self.index + 1;
         result
     }
 }
 
-pub struct VectorIntoIterator<T: IterGet> {
-    vector: T,
+pub struct VectorIntoIterator<Value, Iterable: IterGet<Value>> {
+    _t: Option<Value>,
+    vector: Iterable,
     len: usize,
     index: usize,
 }
 
-impl<T: IterGet> VectorIntoIterator<T> {
-    pub fn new(vector: T, len: usize) -> Self {
+impl<Value, Iterable: IterGet<Value>> VectorIntoIterator<Value, Iterable> {
+    pub fn new(vector: Iterable, len: usize) -> Self {
         Self {
+            _t: None,
             vector,
             len,
             index: 0,
@@ -68,10 +72,10 @@ impl<T: IterGet> VectorIntoIterator<T> {
     }
 }
 
-impl<T: IterGet> Iterator for VectorIntoIterator<T> {
-    type Item = usize;
+impl<Value, Iterable: IterGet<Value>> Iterator for VectorIntoIterator<Value, Iterable> {
+    type Item = Value;
 
-    fn next(&mut self) -> Option<usize> {
+    fn next(&mut self) -> Option<Value> {
         let result = if self.index < self.len {
             Some(self.vector.iter_get(self.index))
         } else {

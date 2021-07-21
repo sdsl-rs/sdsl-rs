@@ -2,7 +2,8 @@ use crate::interface::common;
 use anyhow::Result;
 
 pub trait TreeStrategy {
-    type Value: Clone + std::fmt::Debug;
+    type Value: Clone + Copy;
+    type Size: Into<usize> + Clone + Copy;
     const LEX_ORDERED: bool;
 }
 

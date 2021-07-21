@@ -122,7 +122,7 @@ impl BitVector {
     /// Get the i-th element of the vector.
     /// # Arguments
     /// * `index` - An index in range $ [0, \mathrm{len}()) $.
-    pub fn get(&self, index: usize) -> usize {
+    pub fn get(&self, index: usize) -> u8 {
         (self.interface.get)(self.ptr, index)
     }
 
@@ -140,7 +140,7 @@ impl BitVector {
     }
 
     /// Returns an iterator over the vector values.
-    pub fn iter(&self) -> common::VectorIterator<Self> {
+    pub fn iter(&self) -> common::VectorIterator<u8, Self> {
         common::VectorIterator::new(&self, self.len())
     }
 }
@@ -184,8 +184,8 @@ impl common::Code for BitVector {
     }
 }
 
-impl common::IterGet for BitVector {
-    fn iter_get(&self, index: usize) -> usize {
+impl common::IterGet<u8> for BitVector {
+    fn iter_get(&self, index: usize) -> u8 {
         (self.interface.get)(self.ptr, index)
     }
 }
@@ -226,8 +226,8 @@ impl PartialEq for BitVector {
 impl Eq for BitVector {}
 
 impl IntoIterator for BitVector {
-    type Item = usize;
-    type IntoIter = common::VectorIntoIterator<BitVector>;
+    type Item = u8;
+    type IntoIter = common::VectorIntoIterator<u8, BitVector>;
 
     fn into_iter(self) -> Self::IntoIter {
         let len = self.len();
@@ -252,7 +252,7 @@ struct Interface {
 
     get_int: extern "C" fn(common::VoidPtr, usize, u8) -> usize,
     set_int: extern "C" fn(common::VoidPtr, usize, usize, u8),
-    get: extern "C" fn(common::VoidPtr, usize) -> usize,
+    get: extern "C" fn(common::VoidPtr, usize) -> u8,
     set: extern "C" fn(common::VoidPtr, usize, usize),
 
     equality: extern "C" fn(common::VoidPtr, common::VoidPtr) -> bool,

@@ -119,7 +119,7 @@ where
     }
 
     /// Returns an iterator over the original bit vector values.
-    pub fn iter_bv(&self) -> common::VectorIterator<Self> {
+    pub fn iter_bv(&self) -> common::VectorIterator<usize, Self> {
         common::VectorIterator::new(&self, self.len())
     }
 
@@ -184,7 +184,7 @@ where
     }
 }
 
-impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::IterGet
+impl<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16> common::IterGet<usize>
     for RrrVector<'a, BlockStore, BLOCK_SIZE, RANK_STORE_FREQ>
 where
     BlockStore: common::Code,
