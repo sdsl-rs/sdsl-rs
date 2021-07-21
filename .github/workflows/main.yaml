@@ -9,6 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
+          sudo apt install libdivsufsort-dev
           ./make.sh
         shell: bash
       - uses: actions-rs/toolchain@v1
@@ -25,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
+          sudo apt install libdivsufsort-dev
           ./make.sh
         shell: bash
       - uses: actions-rs/toolchain@v1
