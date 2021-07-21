@@ -287,6 +287,11 @@ where
         }
     }
 
+    /// Returns a count of the number of different symbols in the wavelet tree.
+    pub fn alphabet_size(&self) -> usize {
+        (self.interface.alphabet_size)(self.ptr)
+    }
+
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
@@ -493,6 +498,7 @@ struct Interface<Value> {
     lex_smaller_count: extern "C" fn(common::VoidPtr, usize, Value) -> LexSmallerCount,
     symbol_gte: extern "C" fn(common::VoidPtr, Value) -> SymbolGte<Value>,
     symbol_lte: extern "C" fn(common::VoidPtr, Value) -> SymbolLte<Value>,
+    alphabet_size: extern "C" fn(common::VoidPtr) -> usize,
 
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
@@ -524,6 +530,7 @@ impl<Value> Interface<Value> {
             lex_smaller_count: builder.get("lex_smaller_count")?,
             symbol_gte: builder.get("symbol_gte")?,
             symbol_lte: builder.get("symbol_lte")?,
+            alphabet_size: builder.get("alphabet_size")?,
 
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),

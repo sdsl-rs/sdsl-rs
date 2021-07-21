@@ -99,3 +99,15 @@ fn test_symbol_found_lte() -> Result<()> {
     assert_eq!(result, expected);
     Ok(())
 }
+
+#[test]
+fn test_alphabet_size() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 115                |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.alphabet_size();
+    let expected = 2;
+    assert_eq!(result, expected);
+    Ok(())
+}
