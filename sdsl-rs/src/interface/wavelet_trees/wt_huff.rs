@@ -244,36 +244,24 @@ where
         (self.interface.lex_count)(self.ptr, start_index, end_index, symbol)
     }
 
+    /// Returns a count of symbols which are lexicographic smaller than `symbol` in [0..i-1].
+    ///
+    /// This method is only available for lex ordered tree strategies.
+    ///
+    /// # Arguments
+    /// * `index` - Exclusive right bound of the range.
+    /// * `symbol` - Symbol.
+    pub fn lex_smaller_count(&self, index: usize, symbol: TreeStrategy::Value) -> LexSmallerCount {
+        assert!(
+            TreeStrategy::LEX_ORDERED,
+            "TreeStrategy is not lex ordered."
+        );
+        (self.interface.lex_smaller_count)(self.ptr, index, symbol)
+    }
+
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
-    }
-}
-
-#[repr(C)]
-pub struct LexCount {
-    pub rank: usize,
-    pub count_smaller_symbols: usize,
-    pub count_greater_symbols: usize,
-}
-
-pub struct IntervalSymbols<'a, ValueType> {
-    pub interval_alphabet_size: usize,
-    pub interval_symbols: &'a [ValueType],
-    pub rank_symbols_lower: &'a [u64],
-    pub rank_symbols_upper: &'a [u64],
-
-    internal_results: ResultIntervalSymbols<ValueType>,
-    interface: Interface<ValueType>,
-}
-
-impl<'a, ValueType> Drop for IntervalSymbols<'a, ValueType> {
-    fn drop(&mut self) {
-        (self.interface.free_result_interval_symbols)(
-            self.internal_results.cs,
-            self.internal_results.rank_c_i,
-            self.internal_results.rank_c_j,
-        )
     }
 }
 
@@ -402,6 +390,39 @@ where
 }
 
 #[repr(C)]
+pub struct LexCount {
+    pub rank: usize,
+    pub count_smaller_symbols: usize,
+    pub count_greater_symbols: usize,
+}
+
+#[repr(C)]
+pub struct LexSmallerCount {
+    pub rank: usize,
+    pub count_smaller_symbols: usize,
+}
+
+pub struct IntervalSymbols<'a, ValueType> {
+    pub interval_alphabet_size: usize,
+    pub interval_symbols: &'a [ValueType],
+    pub rank_symbols_lower: &'a [u64],
+    pub rank_symbols_upper: &'a [u64],
+
+    internal_results: ResultIntervalSymbols<ValueType>,
+    interface: Interface<ValueType>,
+}
+
+impl<'a, ValueType> Drop for IntervalSymbols<'a, ValueType> {
+    fn drop(&mut self) {
+        (self.interface.free_result_interval_symbols)(
+            self.internal_results.cs,
+            self.internal_results.rank_c_i,
+            self.internal_results.rank_c_j,
+        )
+    }
+}
+
+#[repr(C)]
 struct ResultIntervalSymbols<ValueType> {
     interval_alphabet_size: usize,
     length: usize,
@@ -429,6 +450,7 @@ struct Interface<Value> {
     interval_symbols: extern "C" fn(common::VoidPtr, usize, usize) -> ResultIntervalSymbols<Value>,
     free_result_interval_symbols: extern "C" fn(*const Value, *const u64, *const u64),
     lex_count: extern "C" fn(common::VoidPtr, usize, usize, Value) -> LexCount,
+    lex_smaller_count: extern "C" fn(common::VoidPtr, usize, Value) -> LexSmallerCount,
 
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
@@ -457,6 +479,7 @@ impl<Value> Interface<Value> {
             interval_symbols: builder.get("interval_symbols")?,
             free_result_interval_symbols: builder.get("free_result_interval_symbols")?,
             lex_count: builder.get("lex_count")?,
+            lex_smaller_count: builder.get("lex_smaller_count")?,
 
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),
