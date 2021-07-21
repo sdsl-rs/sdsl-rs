@@ -273,6 +273,20 @@ where
         }
     }
 
+    /// For a given symbol returns the next lesser or equal symbol in the wavelet tree.
+    /// Returns None if a valid symbol was not found.
+    ///
+    /// # Arguments
+    /// * `symbol` - Symbol.
+    pub fn symbol_lte(&self, symbol: TreeStrategy::Value) -> Option<TreeStrategy::Value> {
+        let result = (self.interface.symbol_lte)(self.ptr, symbol);
+        if result.found {
+            Some(result.symbol)
+        } else {
+            None
+        }
+    }
+
     /// Returns an iterator over the vector that was used in constructing the wavelet tree.
     pub fn iter(&self) -> common::VectorIterator<Self> {
         common::VectorIterator::new(&self, self.len())
@@ -410,6 +424,12 @@ struct SymbolGte<ValueType> {
 }
 
 #[repr(C)]
+struct SymbolLte<ValueType> {
+    pub found: bool,
+    pub symbol: ValueType,
+}
+
+#[repr(C)]
 pub struct LexCount {
     pub rank: usize,
     pub count_smaller_symbols: usize,
@@ -472,6 +492,7 @@ struct Interface<Value> {
     lex_count: extern "C" fn(common::VoidPtr, usize, usize, Value) -> LexCount,
     lex_smaller_count: extern "C" fn(common::VoidPtr, usize, Value) -> LexSmallerCount,
     symbol_gte: extern "C" fn(common::VoidPtr, Value) -> SymbolGte<Value>,
+    symbol_lte: extern "C" fn(common::VoidPtr, Value) -> SymbolLte<Value>,
 
     pub io: common::io::Interface,
     _lib: std::sync::Arc<sharedlib::Lib>,
@@ -502,6 +523,7 @@ impl<Value> Interface<Value> {
             lex_count: builder.get("lex_count")?,
             lex_smaller_count: builder.get("lex_smaller_count")?,
             symbol_gte: builder.get("symbol_gte")?,
+            symbol_lte: builder.get("symbol_lte")?,
 
             io: common::io::Interface::new(&id)?,
             _lib: lib.clone(),
