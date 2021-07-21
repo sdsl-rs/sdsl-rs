@@ -51,3 +51,27 @@ fn test_interval_symbols_alphabet_size() -> Result<()> {
     assert_eq!(result, expected);
     Ok(())
 }
+
+#[test]
+fn test_no_symbol_found_gte() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 115                |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.symbol_gte(116);
+    let expected = None;
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
+fn test_symbol_found_gte() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 115                |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.symbol_gte(112);
+    let expected = Some(113);
+    assert_eq!(result, expected);
+    Ok(())
+}
