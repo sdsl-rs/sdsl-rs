@@ -59,13 +59,13 @@ Please contact the [chat channel](https://matrix.to/#/#sdsl-rs:matrix.org) for p
 ### Wavelet Trees
 
 * [x] WtHuff
+* [x] WtInt
 * [ ] WtRlmn
 * [ ] WtGmr
 * [ ] WtAp
 * [ ] WmInt
 * [ ] WtBlcd
 * [ ] WtHutu
-* [ ] WtInt
 
 ### Compressed Suffix Arrays
 
