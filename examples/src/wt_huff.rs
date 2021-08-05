@@ -1,6 +1,42 @@
 use anyhow::Result;
 
 #[test]
+fn test_rank() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 115                      |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.rank(1, 113);
+    let expected = 1;
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
+fn test_inverse_select() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 113                |  | 115                |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.inverse_select(1);
+    let expected = (113, 1);
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
+fn test_select() -> Result<()> {
+    #[rustfmt::skip]
+    //                                   | 113                |  | 113                |  | 115                |
+    let bv = sdsl::bit_vector! {1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0};
+    let wt = sdsl::wavelet_trees::WtHuff::<sdsl::bit_vectors::BitVector>::from_bit_vector(&bv)?;
+    let result = wt.select(2, 113);
+    let expected = 1;
+    assert_eq!(result, expected);
+    Ok(())
+}
+
+#[test]
 fn test_found_correct_interval_symbols() -> Result<()> {
     #[rustfmt::skip]
     //                                   | 113                |  | 115                      |

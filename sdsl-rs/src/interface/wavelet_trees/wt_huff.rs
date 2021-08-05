@@ -192,7 +192,7 @@ where
     pub fn inverse_select(
         &self,
         index: TreeStrategy::Size,
-    ) -> (TreeStrategy::Size, TreeStrategy::Size) {
+    ) -> (TreeStrategy::Value, TreeStrategy::Size) {
         let (rank, symbol) = (self.interface.inverse_select)(self.ptr, index).into();
         (symbol, rank)
     }
@@ -505,7 +505,7 @@ struct Interface<Value, Size> {
     is_empty: extern "C" fn(common::VoidPtr) -> bool,
     get: extern "C" fn(common::VoidPtr, usize) -> Value,
     rank: extern "C" fn(common::VoidPtr, Size, Value) -> Size,
-    inverse_select: extern "C" fn(common::VoidPtr, Size) -> common::Pair<Size, Size>,
+    inverse_select: extern "C" fn(common::VoidPtr, Size) -> common::Pair<Size, Value>,
     select: extern "C" fn(common::VoidPtr, Size, Value) -> Size,
     interval_symbols:
         extern "C" fn(common::VoidPtr, Size, Size) -> ResultIntervalSymbols<Value, Size>,
