@@ -165,7 +165,8 @@ impl common::Ptr for BitVector {
 
 impl common::Id for BitVector {
     fn id() -> Result<String> {
-        let meta = Box::new(meta::bit_vector::BitVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let meta = Box::new(meta::bit_vectors::bit_vector::BitVectorMeta::new())
+            as Box<dyn meta::common::Meta>;
         let parameters_c_code = Self::parameters_c_code()?;
         let id = sdsl_c::specification::get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(id)
@@ -174,7 +175,8 @@ impl common::Id for BitVector {
 
 impl common::Code for BitVector {
     fn c_code() -> Result<String> {
-        let meta = Box::new(meta::bit_vector::BitVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let meta = Box::new(meta::bit_vectors::bit_vector::BitVectorMeta::new())
+            as Box<dyn meta::common::Meta>;
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }

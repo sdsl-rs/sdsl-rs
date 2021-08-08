@@ -1,12 +1,12 @@
-pub mod bit_vector;
+pub mod bit_vectors;
 pub mod common;
 pub mod int_vector;
 pub mod rank_support_v;
-pub mod rrr_vector;
 pub mod select_support_mcl;
 pub mod wavelet_trees;
 
 pub mod crate_export {
+    pub use crate::interface::bit_vectors::crate_export as bit_vectors;
     pub use crate::interface::common::io::crate_export as io;
     pub use crate::interface::common::util::crate_export as util;
     pub use crate::interface::wavelet_trees::crate_export as wavelet_trees;
@@ -17,10 +17,6 @@ pub mod crate_export {
 
     pub mod int_vectors {
         pub use crate::interface::int_vector::IntVector;
-    }
-
-    pub mod bit_vectors {
-        pub use crate::interface::{bit_vector::BitVector, rrr_vector::RrrVector};
     }
 
     pub mod rank_supports {

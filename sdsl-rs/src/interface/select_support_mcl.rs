@@ -49,7 +49,7 @@ pub struct SelectSupportMcl<'a, BitPattern: common::bit_patterns::BitPattern> {
     // Dummy field so BitPattern is used, always None.
     _bp: Option<BitPattern>,
     // Dummy field to retain reference to bit vector.
-    _bit_vector: Option<&'a super::bit_vector::BitVector>,
+    _bit_vector: Option<&'a super::bit_vectors::bit_vector::BitVector>,
     ptr: common::VoidPtr,
     interface: Interface,
 }
@@ -58,7 +58,7 @@ impl<'a, BitPattern: common::bit_patterns::BitPattern> SelectSupportMcl<'a, BitP
     /// Construct a new select support structure.
     /// # Arguments
     /// * `bit_vector` - Bit vector.
-    pub fn new(bit_vector: &'a super::bit_vector::BitVector) -> Result<Self> {
+    pub fn new(bit_vector: &'a super::bit_vectors::bit_vector::BitVector) -> Result<Self> {
         let id = Self::id()?;
         let interface = Interface::new(&id)?;
         let ptr = (interface.create)(*bit_vector.ptr());

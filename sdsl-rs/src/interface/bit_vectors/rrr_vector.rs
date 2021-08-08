@@ -59,7 +59,7 @@ where
     /// Construct a new $ H_0 $-compressed bit vector.
     /// # Arguments
     /// * `bit_vector` - Uncompressed bit vector.
-    pub fn new(bit_vector: &crate::interface::bit_vector::BitVector) -> Result<Self> {
+    pub fn new(bit_vector: &crate::interface::bit_vectors::bit_vector::BitVector) -> Result<Self> {
         let id = Self::id()?;
         let interface = Interface::new(&id)?;
         let ptr = (interface.create)(*bit_vector.ptr());
@@ -157,7 +157,8 @@ where
     BlockStore: common::Code + 'a,
 {
     fn id() -> Result<String> {
-        let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let meta = Box::new(meta::bit_vectors::rrr_vector::RrrVectorMeta::new())
+            as Box<dyn meta::common::Meta>;
         let parameters_c_code = Self::parameters_c_code()?;
         let id = sdsl_c::specification::get_id(&meta.c_code(&parameters_c_code)?)?;
         Ok(id)
@@ -170,7 +171,8 @@ where
     BlockStore: common::Code + 'a,
 {
     fn c_code() -> Result<String> {
-        let meta = Box::new(meta::rrr_vector::RrrVectorMeta::new()) as Box<dyn meta::common::Meta>;
+        let meta = Box::new(meta::bit_vectors::rrr_vector::RrrVectorMeta::new())
+            as Box<dyn meta::common::Meta>;
         let parameters_c_code = Self::parameters_c_code()?;
         Ok(meta.c_code(&parameters_c_code)?)
     }

@@ -129,7 +129,9 @@ where
     /// Construct a Huffman-shaped wavelet tree from a bit vector.
     /// # Arguments
     /// * `bit_vector` - Bitvector.
-    pub fn from_bit_vector(bit_vector: &crate::interface::bit_vector::BitVector) -> Result<Self> {
+    pub fn from_bit_vector(
+        bit_vector: &crate::interface::bit_vectors::bit_vector::BitVector,
+    ) -> Result<Self> {
         let id = Self::id()?;
         let interface = Interface::new(&id)?;
         let ptr = (interface.from_bit_vector)(*bit_vector.ptr());

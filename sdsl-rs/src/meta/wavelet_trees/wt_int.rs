@@ -1,8 +1,10 @@
 use crate::meta::common::{self, Code, Parameters};
 use anyhow::{format_err, Result};
 
-type DefaultInterfaceType<'a> =
-    crate::interface::wavelet_trees::wt_int::WtInt<'a, crate::interface::bit_vector::BitVector>;
+type DefaultInterfaceType<'a> = crate::interface::wavelet_trees::wt_int::WtInt<
+    'a,
+    crate::interface::bit_vectors::bit_vector::BitVector,
+>;
 
 pub struct WtIntMeta {
     parameters_default_meta: Vec<Box<dyn common::Meta>>,
@@ -12,7 +14,7 @@ impl WtIntMeta {
     pub fn new() -> Self {
         Self {
             parameters_default_meta: vec![
-                Box::new(crate::meta::bit_vector::BitVectorMeta::new()) as Box<dyn common::Meta>,
+                Box::new(crate::meta::bit_vectors::bit_vector::BitVectorMeta::new()) as Box<dyn common::Meta>,
                 Box::new(
                     crate::meta::rank_support_v::RankSupportVMeta::new_parameterized(vec![Box::new(
                         crate::meta::common::bit_patterns::P1Meta::new(),
@@ -52,7 +54,7 @@ impl common::Meta for WtIntMeta {
         let header = header_specification(&parameters_c_code, &parameters_file_specs, &id, &self)?;
         let source = source_specification(&header, &id)?;
 
-        let bit_vector_meta = crate::meta::bit_vector::BitVectorMeta::new();
+        let bit_vector_meta = crate::meta::bit_vectors::bit_vector::BitVectorMeta::new();
         let bit_vector_specs = bit_vector_meta.file_specifications(&vec![], &vec![], &id)?;
 
         let c_code = self.c_code(&parameters_c_code)?;

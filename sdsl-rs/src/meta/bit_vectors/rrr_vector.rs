@@ -23,7 +23,7 @@ impl common::Meta for RrrVectorMeta {
         let header = header_specification(&parameters_c_code, &id, &self)?;
         let source = source_specification(&header, &id)?;
 
-        let bit_vector_meta = crate::meta::bit_vector::BitVectorMeta::new();
+        let bit_vector_meta = crate::meta::bit_vectors::bit_vector::BitVectorMeta::new();
         let bit_vector_specs = bit_vector_meta.file_specifications(&vec![], &vec![], &id)?;
 
         let c_code = self.c_code(&parameters_c_code)?;
