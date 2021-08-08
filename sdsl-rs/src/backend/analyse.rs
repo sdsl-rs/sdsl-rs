@@ -155,12 +155,3 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
     ))?;
     Ok(specification)
 }
-
-#[test]
-fn foo() -> Result<()> {
-    let x = analyse(&CodeMeta {
-        mir: "        let _44: sdsl::wavelet_trees::WtHuff; ".to_string(),
-    })?;
-    println!("{:#?}", x);
-    Ok(())
-}
