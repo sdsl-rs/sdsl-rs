@@ -14,7 +14,7 @@ use crate::interface::common::{self, Code, Id};
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/bit_vector.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/bit_vectors/bit_vector.rs).
 pub struct BitVector {
     ptr: common::VoidPtr,
     interface: Interface,

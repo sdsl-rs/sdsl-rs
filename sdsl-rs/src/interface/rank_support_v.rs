@@ -27,7 +27,7 @@ use crate::interface::common::{self, Code, Id, Ptr};
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/rank_support_v.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/rank_supports/rank_support_v.rs).
 ///
 /// # References
 /// - Sebastiano Vigna:

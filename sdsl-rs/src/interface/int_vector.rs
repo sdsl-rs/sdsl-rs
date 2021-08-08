@@ -21,7 +21,7 @@ use crate::interface::common::{self, Code, Id};
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/int_vector.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/int_vectors/int_vector.rs).
 pub struct IntVector<const WIDTH: u8> {
     ptr: common::VoidPtr,
     interface: Interface,

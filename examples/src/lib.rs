@@ -5,22 +5,16 @@ mod util;
 mod io;
 
 #[cfg(test)]
-mod int_vector;
+mod int_vectors;
 
 #[cfg(test)]
-mod bit_vector;
+mod bit_vectors;
 
 #[cfg(test)]
-mod rrr_vector;
+mod rank_supports;
 
 #[cfg(test)]
-mod rank_support_v;
+mod select_supports;
 
 #[cfg(test)]
-mod select_support_mcl;
-
-#[cfg(test)]
-mod wt_huff;
-
-#[cfg(test)]
-mod wt_int;
+mod wavelet_trees;

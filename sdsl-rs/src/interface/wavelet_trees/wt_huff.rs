@@ -50,7 +50,7 @@ use crate::interface::wavelet_trees::layouts;
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/wt_huff.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/wavelet_trees/wt_huff.rs).
 pub struct WtHuff<
     'a,
     BitVector = crate::bit_vectors::BitVector,

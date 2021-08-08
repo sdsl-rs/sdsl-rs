@@ -39,7 +39,7 @@ use crate::interface::common::{self, Code, Id};
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/rrr_vector.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/bit_vectors/rrr_vector.rs).
 
 pub struct RrrVector<'a, BlockStore, const BLOCK_SIZE: u16, const RANK_STORE_FREQ: u16>
 where

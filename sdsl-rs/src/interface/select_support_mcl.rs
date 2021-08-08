@@ -38,7 +38,7 @@ use crate::interface::common::{self, Code, Id, Ptr};
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/select_support_mcl.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/select_supports/select_support_mcl.rs).
 ///
 /// # References
 /// - David Clark:

@@ -29,7 +29,7 @@ type Size = usize;
 /// assert_eq!(result, expected);
 /// ```
 ///
-/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/wt_int.rs).
+/// For further examples see [here](https://github.com/sdsl-rs/sdsl-rs/blob/master/examples/src/wavelet_trees/wt_int.rs).
 pub struct WtInt<
     'a,
     BitVector = crate::bit_vectors::BitVector,
