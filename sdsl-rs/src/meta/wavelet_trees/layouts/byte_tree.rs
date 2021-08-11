@@ -40,7 +40,7 @@ impl common::Meta for ByteTreeMeta {
 }
 
 fn get_header_specification(parameters_c_code: &Vec<String>) -> Result<common::FileSpecification> {
-    let file_name = std::path::PathBuf::from("byte_tree.hpp");
+    let file_name = std::path::PathBuf::from("wavelet_trees/layouts/byte_tree.hpp");
 
     Ok(common::FileSpecification {
         replacements: get_header_replacements(&parameters_c_code)?,

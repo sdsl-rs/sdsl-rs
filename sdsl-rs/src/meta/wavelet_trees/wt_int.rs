@@ -82,7 +82,7 @@ fn header_specification(
     id: &str,
     meta: &WtIntMeta,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("wt_int.hpp");
+    let template_file_name = std::path::PathBuf::from("wavelet_trees/wt_int.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
@@ -102,7 +102,7 @@ fn source_specification(
     header: &common::FileSpecification,
     id: &str,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("wt_int.cpp");
+    let template_file_name = std::path::PathBuf::from("wavelet_trees/wt_int.cpp");
     Ok(common::FileSpecification {
         replacements: get_source_replacements(&header.template_file_name, &header.target_file_name),
         template_file_name: template_file_name.clone(),

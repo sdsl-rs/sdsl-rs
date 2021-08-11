@@ -82,7 +82,7 @@ fn header_specification(
     id: &str,
     meta: &WtHuffMeta,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("wt_huff.hpp");
+    let template_file_name = std::path::PathBuf::from("wavelet_trees/wt_huff.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
@@ -102,7 +102,7 @@ fn source_specification(
     header: &common::FileSpecification,
     id: &str,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("wt_huff.cpp");
+    let template_file_name = std::path::PathBuf::from("wavelet_trees/wt_huff.cpp");
     Ok(common::FileSpecification {
         replacements: get_source_replacements(&header.template_file_name, &header.target_file_name),
         template_file_name: template_file_name.clone(),
@@ -150,9 +150,9 @@ fn get_header_replacements(
         "Parameter file specs empty. Expected at least one element."
     ))?;
     replacements.insert(
-        "#include \"byte_tree.hpp\"".to_string(),
+        "#include \"layouts/byte_tree.hpp\"".to_string(),
         format!(
-            "#include \"{}\"",
+            "#include \"../{}\"",
             tree_strategy_header_spec.target_file_name.display()
         ),
     );

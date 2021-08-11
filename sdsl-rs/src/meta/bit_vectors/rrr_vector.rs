@@ -41,7 +41,7 @@ fn header_specification(
     id: &str,
     meta: &RrrVectorMeta,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("rrr_vector.hpp");
+    let template_file_name = std::path::PathBuf::from("bit_vectors/rrr_vector.hpp");
     let target_file_name = common::get_target_file_name(&template_file_name, &id)?;
 
     Ok(common::FileSpecification {
@@ -56,7 +56,7 @@ fn source_specification(
     header: &common::FileSpecification,
     id: &str,
 ) -> Result<common::FileSpecification> {
-    let template_file_name = std::path::PathBuf::from("rrr_vector.cpp");
+    let template_file_name = std::path::PathBuf::from("bit_vectors/rrr_vector.cpp");
     Ok(common::FileSpecification {
         replacements: get_source_replacements(&header.template_file_name, &header.target_file_name),
         template_file_name: template_file_name.clone(),

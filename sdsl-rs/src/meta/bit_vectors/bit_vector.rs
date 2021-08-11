@@ -40,7 +40,7 @@ impl common::Meta for BitVectorMeta {
 }
 
 fn get_header_specification(id: &str) -> Result<common::FileSpecification> {
-    let file_name = std::path::PathBuf::from("bit_vector.hpp");
+    let file_name = std::path::PathBuf::from("bit_vectors/bit_vector.hpp");
 
     Ok(common::FileSpecification {
         replacements: get_header_replacements(&id),
@@ -51,7 +51,7 @@ fn get_header_specification(id: &str) -> Result<common::FileSpecification> {
 }
 
 fn get_source_specification() -> Result<common::FileSpecification> {
-    let file_name = std::path::PathBuf::from("bit_vector.cpp");
+    let file_name = std::path::PathBuf::from("bit_vectors/bit_vector.cpp");
     Ok(common::FileSpecification {
         replacements: maplit::btreemap! {},
         template_file_name: file_name.clone(),

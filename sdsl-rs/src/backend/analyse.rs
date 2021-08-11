@@ -15,10 +15,25 @@ pub fn setup(
     Ok(match get_mir_file_path(&crate_directory, &out_directory)? {
         Some(path) => {
             let mir = std::fs::read_to_string(&path)?;
+            let mir = clean_mir(&mir);
+            std::fs::write(out_directory.join("mir_clean"), &mir)?;
             Some(CodeMeta { mir })
         }
         None => None,
     })
+}
+
+fn clean_mir(mir: &str) -> String {
+    mir.lines()
+        .map(|line| {
+            if let Some((prefix, _suffix)) = line.split_once(r" //") {
+                prefix
+            } else {
+                line
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn get_mir_file_path(
@@ -143,7 +158,7 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
     let specification = analyse(&CodeMeta {
         mir: format!(
             "{prefix}{parameter};",
-            prefix = " ",
+            prefix = ": ",
             parameter = parameter_value.to_string()
         ),
     })?
@@ -155,3 +170,12 @@ fn handle_sdsl_type(parameter_value: &str) -> Result<specification::Specificatio
     ))?;
     Ok(specification)
 }
+
+// #[test]
+// fn foo() -> Result<()> {
+//     let x = analyse(&CodeMeta {
+//         mir: "        let _44: sdsl::wavelet_trees::WtHuff; ".to_string(),
+//     })?;
+//     println!("{:#?}", x);
+//     Ok(())
+// }

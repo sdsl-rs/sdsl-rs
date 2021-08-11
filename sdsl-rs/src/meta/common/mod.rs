@@ -42,7 +42,7 @@ pub trait Parameters {
     fn parameters_default_meta(&self) -> &Vec<Box<dyn Meta>>;
 }
 
-static PATH_PREFIX_REGEX: &str = r"([ &]|(&mut ))";
+static PATH_PREFIX_REGEX: &str = r":([ &]|(&mut ))";
 
 pub trait Regex: Path + Parameters {
     fn parameters_regex(&self) -> Result<Option<Vec<regex::Regex>>>;
@@ -111,6 +111,10 @@ pub fn get_target_file_name(
     template_file_name: &std::path::PathBuf,
     id: &str,
 ) -> Result<std::path::PathBuf> {
+    let template_parent_directory = match template_file_name.parent() {
+        Some(parent) => parent.to_path_buf(),
+        None => std::path::PathBuf::from(""),
+    };
     let stem = template_file_name
         .file_stem()
         .and_then(|s| s.to_str().to_owned())
@@ -131,7 +135,7 @@ pub fn get_target_file_name(
         id = id,
         extension = extension
     );
-    Ok(std::path::PathBuf::from(target_file_name))
+    Ok(template_parent_directory.join(std::path::PathBuf::from(target_file_name)))
 }
 
 pub fn c_sorted_parameters(

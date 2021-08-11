@@ -116,6 +116,11 @@ fn setup_source_files(
 
             added_files.insert(target_file_path.clone());
             if !target_file_path.exists() {
+                match target_file_path.parent() {
+                    Some(parent) => std::fs::create_dir_all(parent)?,
+                    None => {}
+                };
+
                 std::fs::copy(&template_file_path, &target_file_path)?;
                 new_files.insert(target_file_path.clone());
             }
@@ -130,6 +135,7 @@ fn cleanup_stale_files(
     files_to_keep: &std::collections::BTreeSet<std::path::PathBuf>,
     directory: &std::path::PathBuf,
 ) -> Result<()> {
+    // TODO: Remove empty directories.
     for path in walkdir::WalkDir::new(&directory)
         .into_iter()
         .filter_map(Result::ok)
