@@ -44,17 +44,25 @@ fn get_mir_file_path(
     let mir_tmp_directory = out_directory.join("mir_build");
     std::fs::create_dir_all(&mir_tmp_directory)?;
 
-    let mut child = std::process::Command::new("cargo")
+    log::debug!(
+        "Executing command: {env}=1 cargo rustc --tests -- --emit=mir",
+        env = common::ENV_SKIP_BUILD
+    );
+    let child = std::process::Command::new("cargo")
         .args(vec!["rustc", "--tests", "--", "--emit=mir"])
         .env(common::ENV_SKIP_BUILD, "1")
         .env("CARGO_TARGET_DIR", &mir_tmp_directory)
         .current_dir(crate_directory)
-        .stderr(std::process::Stdio::null())
+        .stderr(std::process::Stdio::piped())
         .spawn()
         .expect("Failed to generate MIR file.");
-    let exit_status = child.wait()?;
-    if !exit_status.success() {
-        log::debug!("Cargo build step failed. MIR file not generated.");
+    let output = child.wait_with_output()?;
+    if !output.status.success() {
+        log::debug!(
+            "Cargo build step failed. MIR file not generated.\nStdout:\n{stdout}\nStderr:\n{stderr}",
+            stdout = String::from_utf8_lossy(&output.stdout),
+            stderr = String::from_utf8_lossy(&output.stderr)
+        );
         return Ok(None);
     }
 
