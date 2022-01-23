@@ -15,7 +15,7 @@ jobs:
       - name: Specify rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: beta-2021-07-29
+          toolchain: 1.58.0
           override: true
       - uses: actions-rs/cargo@v1
         with:
@@ -34,7 +34,7 @@ jobs:
       - name: Specify rust toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: beta-2021-07-29
+          toolchain: 1.58.0
           override: true
       - uses: actions-rs/cargo@v1
         with:
