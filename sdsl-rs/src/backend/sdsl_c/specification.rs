@@ -242,10 +242,10 @@ fn setup_static_files(
         std::fs::create_dir_all(&src_directory)?;
     }
 
-    let template_lib_directory = template_directory.join("external");
+    let template_external_directory = template_directory.join("external");
     if !interface_directory.join("external").exists() {
         fs_extra::copy_items(
-            &vec![template_lib_directory],
+            &vec![template_external_directory],
             &interface_directory,
             &fs_extra::dir::CopyOptions::new(),
         )?;
