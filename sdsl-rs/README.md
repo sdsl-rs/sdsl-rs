@@ -1,4 +1,5 @@
 <p align="center">
+  <a href="https://crates.io/crates/sdsl"><img src="https://img.shields.io/crates/v/sdsl" alt="Crates.io"></a>
   <a href="https://docs.rs/sdsl"><img src="https://docs.rs/sdsl/badge.svg" alt="Docs"></a>
   <a href="https://matrix.to/#/#sdsl-rs:matrix.org"><img src="https://img.shields.io/matrix/sdsl-rs:matrix.org?label=chat&logo=matrix" alt="Matrix"></a>
   <a href="https://github.com/sdsl-rs/sdsl-rs/actions/workflows/main.yaml"><img src="https://github.com/sdsl-rs/sdsl-rs/actions/workflows/main.yaml/badge.svg" alt="CI"></a>
