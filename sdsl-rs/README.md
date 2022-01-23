@@ -131,11 +131,11 @@ The project's `Cargo.toml` file must therefore include a `build-dependencies` se
 
 ```toml
 [dependencies]
-sdsl = "0.1.0"
+sdsl = "0.3.0"
 # ... other dependencies ...
 
 [build-dependencies]
-sdsl = "0.1.0"
+sdsl = "0.3.0"
 ```
 
 The `sdsl::build()` function call allows `SDSL-RS` to analyse the current project's code base (via [MIR](https://rustc-dev-guide.rust-lang.org/mir/index.html)) and build an appropriate interface in the top level `target` directory. The initial compilation of the project after adding `SDSL-RS` takes a while because `SDSL-lite` is compiled as a dependency. Subsequent compilations should be quick.
