@@ -3,3 +3,6 @@ members = [
 	"sdsl-rs",
 	"examples",
 ]
+
+[patch.crates-io]
+sdsl = { path = './sdsl-rs' }
